@@ -14,6 +14,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using ElectronicObserver.Window.Plugins;
 
 namespace ElectronicObserver.Utility {
 
@@ -1477,6 +1478,8 @@ namespace ElectronicObserver.Utility {
 
 			Config.VersionUpdateTime = DateTimeHelper.TimeToCSVString( SoftwareInformation.UpdateTime );
 		}
+
+		public List<ObserverPlugin> ObserverPlugins = new List<ObserverPlugin>();
 
 	}
 

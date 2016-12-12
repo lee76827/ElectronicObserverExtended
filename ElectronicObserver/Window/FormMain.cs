@@ -16,9 +16,11 @@ using System.Drawing;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using ElectronicObserver.Window.Plugins;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace ElectronicObserver.Window {
@@ -65,6 +67,7 @@ namespace ElectronicObserver.Window {
 		#endregion
 
 
+		public List<IPluginHost> Plugins { get; private set; }
 
 
 		public FormMain() {
@@ -79,6 +82,7 @@ namespace ElectronicObserver.Window {
 
 			Utility.Configuration.Instance.Load( this );
 
+			Program.Window_Font = Utility.Configuration.Config.UI.MainFont;
 
 			Utility.Logger.Instance.LogAdded += new Utility.LogAddedEventHandler( ( Utility.Logger.LogData data ) => {
 				if ( InvokeRequired ) {
@@ -132,6 +136,7 @@ namespace ElectronicObserver.Window {
 			StripMenu_Tool_AlbumMasterShip.Image = ResourceManager.Instance.Icons.Images[(int)ResourceManager.IconContent.FormAlbumShip];
 			StripMenu_Tool_AlbumMasterEquipment.Image = ResourceManager.Instance.Icons.Images[(int)ResourceManager.IconContent.FormAlbumEquipment];
 			StripMenu_Tool_AntiAirDefense.Image = ResourceManager.Instance.Icons.Images[(int)ResourceManager.IconContent.FormAntiAirDefense];
+			StripMenu_Tool_PluginManager.Image = ResourceManager.Instance.Icons.Images[(int) ResourceManager.IconContent.FormConfiguration];
 
 			StripMenu_Help_Version.Image = ResourceManager.Instance.Icons.Images[(int)ResourceManager.IconContent.AppIcon];
 			#endregion
@@ -166,6 +171,8 @@ namespace ElectronicObserver.Window {
 			SubForms.Add( fWindowCapture = new FormWindowCapture( this ) );
 			SubForms.Add( fBaseAirCorps = new FormBaseAirCorps( this ) );
 			SubForms.Add( fJson = new FormJson( this ) );
+
+			await LoadPlugins();
 
 			ConfigurationChanged();		//設定から初期化
 
@@ -1310,6 +1317,204 @@ namespace ElectronicObserver.Window {
 
 
 
+		#region Plugins
 
+		private object _sync = new object();
+
+		private async Task LoadPlugins()
+		{
+			Plugins = new List<IPluginHost>();
+
+			//pluginManager = new PluginManager(this);
+
+			var path = this.GetType().Assembly.Location;
+			path = path.Substring(0, path.LastIndexOf('\\') + 1) + "Plugins";
+			if (Directory.Exists(path))
+			{
+				bool flag = false;
+
+				// load dlls
+				await Task.Factory.StartNew(() =>
+				{
+					foreach (var file in Directory.GetFiles(path, "*.dll", SearchOption.TopDirectoryOnly))
+					{
+						try
+						{
+
+							var assembly = Assembly.LoadFile(file);
+							var pluginTypes = assembly.ExportedTypes.Where(t => t.GetInterface(typeof(IPluginHost).FullName) != null);
+							if (pluginTypes != null && pluginTypes.Count() > 0)
+							{
+								foreach (var pluginType in pluginTypes)
+								{
+									var plugin = (IPluginHost) assembly.CreateInstance(pluginType.FullName);
+									lock (_sync)
+									{
+										Plugins.Add(plugin);
+									}
+								}
+							}
+
+						}
+						catch (ReflectionTypeLoadException refEx)
+						{
+							Utility.ErrorReporter.SendLoadErrorReport(refEx, "载入插件时出错：" + file.Substring(file.LastIndexOf('\\') + 1));
+						}
+						catch (Exception ex)
+						{
+							Utility.ErrorReporter.SendErrorReport(ex, "载入插件时出错：" + file.Substring(file.LastIndexOf('\\') + 1));
+						}
+					}
+				});
+
+				// instance them
+				foreach (var plugin in Plugins)
+				{
+					try
+					{
+						if (!flag)
+						{
+							var sep = new ToolStripSeparator();
+							StripMenu_View.DropDownItems.Add(sep);
+							flag = true;
+						}
+
+						if (plugin.PluginType == PluginType.DockContent ||
+						    (plugin.PluginType & PluginType.DockContentPlugin) == PluginType.DockContentPlugin)
+						{
+							List<DockContent> plugins = new List<DockContent>();
+							foreach (var type in plugin.GetType().Assembly.ExportedTypes.Where(t => t.BaseType == typeof(DockContent)))
+							{
+								if (type != null)
+								{
+									var form = (DockContent) type.GetConstructor(new[] {typeof(FormMain)}).Invoke(new object[] {this});
+									plugins.Add(form);
+								}
+							}
+							if (plugins.Count == 1)
+							{
+								var p = plugins[0];
+								var item = new ToolStripMenuItem
+								{
+									Text = plugin.MenuTitle ?? p.Text,
+									Tag = p
+								};
+								if (plugin.MenuIcon != null)
+									item.Image = plugin.MenuIcon;
+								item.Click += menuitem_Click;
+								StripMenu_View.DropDownItems.Add(item);
+							}
+							else if (plugins.Count > 1)
+							{
+								var item = new ToolStripMenuItem
+								{
+									Text = plugin.MenuTitle ?? plugins.First().Text
+								};
+								foreach (var p in plugins)
+								{
+									var subItem = new ToolStripMenuItem
+									{
+										Text = p.Text,
+										Tag = p
+									};
+									if (p.ShowIcon && p.Icon != null)
+										subItem.Image = p.Icon.ToBitmap();
+									subItem.Click += menuitem_Click;
+									item.DropDownItems.Add(subItem);
+								}
+								StripMenu_View.DropDownItems.Add(item);
+							}
+
+							SubForms.AddRange(plugins);
+						}
+
+						// service
+						if (plugin.PluginType == PluginType.Service ||
+						    (plugin.PluginType & PluginType.ServicePlugin) == PluginType.ServicePlugin)
+						{
+							if (plugin.RunService(this))
+							{
+								Utility.Logger.Add(2, string.Format("服务 {0}({1}) 已加载。", plugin.MenuTitle, plugin.Version));
+							}
+							else
+							{
+								Utility.Logger.Add(3,
+									string.Format("服务 {0}({1}, {2}) 加载时返回异常结果。", plugin.MenuTitle, plugin.Version, plugin.GetType().Name));
+							}
+						}
+
+						// dialog
+						if (plugin.PluginType == PluginType.Dialog ||
+						    (plugin.PluginType & PluginType.DialogPlugin) == PluginType.DialogPlugin)
+						{
+							var item = new ToolStripMenuItem
+							{
+								Text = plugin.MenuTitle,
+								Tag = plugin
+							};
+							if (plugin.MenuIcon != null)
+								item.Image = plugin.MenuIcon;
+							item.Click += dialogPlugin_Click;
+							StripMenu_Tool.DropDownItems.Add(item);
+						}
+
+						// observer
+						else if (plugin.PluginType == PluginType.Observer ||
+						         (plugin.PluginType & PluginType.ObserverPlugin) == PluginType.ObserverPlugin)
+						{
+
+							if (plugin is ObserverPlugin)
+								Utility.Configuration.Instance.ObserverPlugins.Add((ObserverPlugin) plugin);
+							else
+								Utility.Logger.Add(3, string.Format("观察器 {0}({1}) 类型无效。", plugin.MenuTitle, plugin.Version));
+						}
+
+					}
+					catch (TargetInvocationException ex)
+					{
+						Utility.ErrorReporter.SendErrorReport(ex.InnerException, "Reflection failed loading plugin: " + plugin);
+					}
+					catch (Exception ex)
+					{
+						Utility.ErrorReporter.SendErrorReport(ex, "载入插件时出错：" + plugin);
+					}
+
+				}
+			}
+
+		}
+
+		void dialogPlugin_Click(object sender, EventArgs e)
+		{
+			var plugin = (IPluginHost)((ToolStripMenuItem)sender).Tag;
+			if (plugin != null)
+			{
+				try
+				{
+					plugin.GetToolWindow().Show(this);
+				}
+				catch (ObjectDisposedException) { }
+				catch (Exception ex)
+				{
+					Utility.ErrorReporter.SendErrorReport(ex, string.Format("插件显示出错：{0}({1})", plugin.MenuTitle, plugin.Version));
+				}
+			}
+		}
+
+
+		void menuitem_Click(object sender, EventArgs e)
+		{
+			var f = ((ToolStripMenuItem)sender).Tag as DockContent;
+			if (f != null)
+			{
+				f.Show(this.MainDockPanel);
+			}
+		}
+		#endregion
+
+		private void pluginsToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			new DialogPlugins(this).Show(this);
+		}
 	}
 }

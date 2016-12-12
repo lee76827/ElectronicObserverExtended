@@ -99,6 +99,8 @@
 			this.MainDockPanel = new WeifenLuo.WinFormsUI.Docking.DockPanel();
 			this.toolStripSeparator11 = new System.Windows.Forms.ToolStripSeparator();
 			this.StripMenu_Tool_AntiAirDefense = new System.Windows.Forms.ToolStripMenuItem();
+			this.toolStripSeparatorPlugins = new System.Windows.Forms.ToolStripSeparator();
+			this.StripMenu_Tool_PluginManager = new System.Windows.Forms.ToolStripMenuItem();
 			this.StripMenu.SuspendLayout();
 			this.StripStatus.SuspendLayout();
 			this.SuspendLayout();
@@ -466,7 +468,9 @@
             this.StripMenu_Tool_AlbumMasterShip,
             this.StripMenu_Tool_AlbumMasterEquipment,
             this.toolStripSeparator11,
-            this.StripMenu_Tool_AntiAirDefense});
+            this.StripMenu_Tool_AntiAirDefense,
+            this.toolStripSeparatorPlugins,
+            this.StripMenu_Tool_PluginManager});
 			this.StripMenu_Tool.Name = "StripMenu_Tool";
 			this.StripMenu_Tool.Size = new System.Drawing.Size(66, 20);
 			this.StripMenu_Tool.Text = "ツール(&T)";
@@ -684,6 +688,18 @@
 			this.StripMenu_Tool_AntiAirDefense.Text = "対空砲火詳細(&A)";
 			this.StripMenu_Tool_AntiAirDefense.Click += new System.EventHandler(this.StripMenu_Tool_AntiAirDefense_Click);
 			// 
+			// toolStripSeparatorPlugins
+			// 
+			this.toolStripSeparatorPlugins.Name = "toolStripSeparatorPlugins";
+			this.toolStripSeparatorPlugins.Size = new System.Drawing.Size(197, 6);
+			// 
+			// StripMenu_Tool_PluginManager
+			// 
+			this.StripMenu_Tool_PluginManager.Name = "StripMenu_Tool_PluginManager";
+			this.StripMenu_Tool_PluginManager.Size = new System.Drawing.Size(200, 26);
+			this.StripMenu_Tool_PluginManager.Text = "&Plugins";
+			this.StripMenu_Tool_PluginManager.Click += new System.EventHandler(this.pluginsToolStripMenuItem_Click);
+			// 
 			// FormMain
 			// 
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
@@ -786,5 +802,7 @@
 		private System.Windows.Forms.ToolStripMenuItem StripMenu_View_Json;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator11;
 		private System.Windows.Forms.ToolStripMenuItem StripMenu_Tool_AntiAirDefense;
+		private System.Windows.Forms.ToolStripSeparator toolStripSeparatorPlugins;
+		private System.Windows.Forms.ToolStripMenuItem StripMenu_Tool_PluginManager;
 	}
 }

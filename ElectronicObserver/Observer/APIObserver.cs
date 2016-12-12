@@ -485,16 +485,67 @@ namespace ElectronicObserver.Observer {
 			{
 				oSession["X-OverrideGateway"] = string.Format("{0}:{1}", c.UpstreamProxyAddress, c.UpstreamProxyPort);
 			}
+
+			ObserverResult(p =>
+			{
+				try
+				{
+					return p.OnBeforeRequest(oSession);
+				}
+				catch (Exception oe)
+				{
+					Logger.Add(3, string.Format("插件 {0}({1}) 执行 OnBeforeRequest 时出错！", p.MenuTitle, p.Version));
+					ErrorReporter.SendErrorReport(oe, p.MenuTitle);
+					return false;
+				}
+			});
 		}
 
 		private void FiddlerApplication_AfterSessionComplete(Fiddler.Session oSession)
 		{
-			
+			ObserverResult(p =>
+			{
+				try
+				{
+					return p.OnAfterSessionComplete(oSession);
+				}
+				catch (Exception oe)
+				{
+					Logger.Add(3, string.Format("插件 {0}({1}) 执行 OnAfterSessionComplete 时出错！", p.MenuTitle, p.Version));
+					ErrorReporter.SendErrorReport(oe, p.MenuTitle);
+					return false;
+				}
+			});
 		}
 
 		private void FiddlerApplication_BeforeResponse(Fiddler.Session oSession)
 		{
-			
+			ObserverResult(p =>
+			{
+				try
+				{
+					return p.OnBeforeResponse(oSession);
+				}
+				catch (Exception oe)
+				{
+					Logger.Add(3, string.Format("插件 {0}({1}) 执行 OnBeforeResponse 时出错！", p.MenuTitle, p.Version));
+					ErrorReporter.SendErrorReport(oe, p.MenuTitle);
+					return false;
+				}
+			});
+		}
+
+		private bool ObserverResult(Func<Window.Plugins.ObserverPlugin, bool> func)
+		{
+
+			bool b = false;
+
+			foreach (var p in Configuration.Instance.ObserverPlugins)
+			{
+				b |= func(p);
+			}
+
+			return b;
 		}
 
 		

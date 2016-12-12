@@ -2,16 +2,20 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using ElectronicObserver.Utility;
 
 namespace ElectronicObserver {
-	static class Program {
+	public static class Program {
 		/// <summary>
 		/// アプリケーションのメイン エントリ ポイントです。
 		/// </summary>
 		[STAThread]
 		static void Main() {
+
+			Application.ThreadException += Application_ThreadException;
 
 			var mutex = new System.Threading.Mutex( false, Application.ExecutablePath.Replace( '\\', '/' ) );
 
@@ -27,5 +31,13 @@ namespace ElectronicObserver {
 
 			mutex.ReleaseMutex();
 		}
+
+		private static void Application_ThreadException(object sender, ThreadExceptionEventArgs e)
+		{
+			MessageBox.Show(e.Exception.ToString(), "ElectronicObserverExtended", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			ErrorReporter.SendErrorReport(e.Exception, "Error in thread: " + e.Exception.Message);
+		}
+
+		public static System.Drawing.Font Window_Font;
 	}
 }
