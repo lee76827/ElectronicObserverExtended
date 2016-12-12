@@ -146,7 +146,7 @@ namespace ElectronicObserver.Utility {
 					UseUpstreamProxy = false;
 					UpstreamProxyPort = 0;
 					UpstreamProxyAddress = "127.0.0.1";
-					UseSystemProxy = false;
+					UseSystemProxy = true;
 					DownstreamProxy = "";
 					SendDataToKancolleDB = false;
 					SendKancolleOAuth = "";
