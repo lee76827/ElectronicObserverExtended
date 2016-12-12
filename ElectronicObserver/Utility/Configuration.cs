@@ -327,7 +327,7 @@ namespace ElectronicObserver.Utility {
 					LogLevel = 2;
 					SaveLogFlag = true;
 					SaveErrorReport = true;
-					FileEncodingID = 4;
+					FileEncodingID = 1;
 					ShowSpoiler = true;
 					PlayTime = 0;
 					PlayTimeIgnoreInterval = 10 * 60;
