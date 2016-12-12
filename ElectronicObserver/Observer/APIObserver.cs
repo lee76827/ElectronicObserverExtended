@@ -35,6 +35,7 @@ namespace ElectronicObserver.Observer {
 
 		public string ServerAddress { get; private set; }
 		public int ProxyPort { get; private set; }
+		public int FiddlerProxyPort => Fiddler.FiddlerApplication.oProxy.ListenPort;
 
 		public delegate void ProxyStartedEventHandler();
 		public event ProxyStartedEventHandler ProxyStarted = delegate { };
@@ -133,6 +134,10 @@ namespace ElectronicObserver.Observer {
 			DBSender = new APIKancolleDB();
 
 			HttpProxy.AfterSessionComplete += HttpProxy_AfterSessionComplete;
+
+			Fiddler.FiddlerApplication.BeforeRequest += FiddlerApplication_BeforeRequest;
+			Fiddler.FiddlerApplication.BeforeResponse += FiddlerApplication_BeforeResponse;
+			Fiddler.FiddlerApplication.AfterSessionComplete += FiddlerApplication_AfterSessionComplete;
 		}
 
 
@@ -146,6 +151,9 @@ namespace ElectronicObserver.Observer {
 		/// <returns>実際に使用されるポート番号。</returns>
 		public int Start( int portID, Control UIControl ) {
 
+			StopFiddler();
+			StartFiddler();
+
 			Utility.Configuration.ConfigurationData.ConfigConnection c = Utility.Configuration.Config.Connection;
 
 
@@ -155,12 +163,7 @@ namespace ElectronicObserver.Observer {
 			HttpProxy.Shutdown();
 			try {
 
-				if ( c.UseUpstreamProxy )
-					HttpProxy.UpstreamProxyConfig = new ProxyConfig( ProxyConfigType.SpecificProxy, c.UpstreamProxyAddress, c.UpstreamProxyPort );
-				else if ( c.UseSystemProxy )
-					HttpProxy.UpstreamProxyConfig = new ProxyConfig( ProxyConfigType.SystemProxy );
-				else
-					HttpProxy.UpstreamProxyConfig = new ProxyConfig( ProxyConfigType.DirectAccess );
+				HttpProxy.UpstreamProxyConfig = new ProxyConfig(ProxyConfigType.SpecificProxy, "127.0.0.1", FiddlerProxyPort);
 
 				HttpProxy.Startup( portID, false, false );
 				ProxyPort = portID;
@@ -185,6 +188,8 @@ namespace ElectronicObserver.Observer {
 		/// 通信の受信を停止します。
 		/// </summary>
 		public void Stop() {
+
+			StopFiddler();
 
 			HttpProxy.Shutdown();
 
@@ -460,6 +465,39 @@ namespace ElectronicObserver.Observer {
 
 		}
 
+		private void StartFiddler()
+		{
+			Fiddler.FiddlerApplication.Startup(0, Fiddler.FiddlerCoreStartupFlags.ChainToUpstreamGateway);
+			Utility.Logger.Add(2, string.Format("FiddlerApplication: ポート {0} 番で受信を開始しました。", FiddlerProxyPort));
+		}
+
+		private void StopFiddler()
+		{
+			Fiddler.URLMonInterop.ResetProxyInProcessToDefault();
+			Fiddler.FiddlerApplication.Shutdown();
+		}
+
+		private void FiddlerApplication_BeforeRequest(Fiddler.Session oSession)
+		{
+			Utility.Configuration.ConfigurationData.ConfigConnection c = Utility.Configuration.Config.Connection;
+
+			if (c.UseUpstreamProxy)
+			{
+				oSession["X-OverrideGateway"] = string.Format("{0}:{1}", c.UpstreamProxyAddress, c.UpstreamProxyPort);
+			}
+		}
+
+		private void FiddlerApplication_AfterSessionComplete(Fiddler.Session oSession)
+		{
+			
+		}
+
+		private void FiddlerApplication_BeforeResponse(Fiddler.Session oSession)
+		{
+			
+		}
+
+		
 	}
 
 
