@@ -61,7 +61,8 @@ namespace ElectronicObserver.Utility {
 
 
 		private static System.Net.WebClient client;
-		private static readonly Uri uri = new Uri( "https://www.dropbox.com/s/vk073iw1wvktq4d/version.txt?dl=1" );
+		private static readonly Uri uri = new Uri("https://ci.appveyor.com/api/projects/CNA-Bld/electronicobserverextended/branch/extended");
+		public static string BuildVersion => "<BUILD_VERSION>";
 
 		public static void CheckUpdate() {
 
@@ -97,13 +98,13 @@ namespace ElectronicObserver.Utility {
 
 			try {
 
-				using ( var sr = new System.IO.StringReader( e.Result ) ) {
+				var updateInfo = Codeplex.Data.DynamicJson.Parse(e.Result);
+				{
 
-					DateTime date = DateTimeHelper.CSVStringToTime( sr.ReadLine() );
-					string version = sr.ReadLine();
-					string description = sr.ReadToEnd();
+					string version = updateInfo.build.version;
+					string description = updateInfo.build.message;
 
-					if ( UpdateTime < date ) {
+					if ( version != BuildVersion ) {
 
 						Utility.Logger.Add( 3, "新しいバージョンがリリースされています！ : " + version );
 
@@ -116,7 +117,7 @@ namespace ElectronicObserver.Utility {
 
 						if ( result == System.Windows.Forms.DialogResult.Yes ) {
 
-							System.Diagnostics.Process.Start( "http://electronicobserver.blog.fc2.com/" );
+							System.Diagnostics.Process.Start("https://ci.appveyor.com/project/CNA-Bld/electronicobserverextended/build/artifacts");
 
 						} else if ( result == System.Windows.Forms.DialogResult.Cancel ) {
 

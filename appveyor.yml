@@ -17,6 +17,7 @@ build:
 before_build:
     - git.exe submodule update --init -- "DockPanelSuite"
     - nuget restore
+    - ps: (Get-Content ElectronicObserver\Utility\SoftwareInformation.cs -Encoding UTF8).replace("<BUILD_VERSION>", "$env:APPVEYOR_BUILD_VERSION") | Set-Content ElectronicObserver\Utility\SoftwareInformation.cs -Encoding UTF8
 
 artifacts:
     - path: output
