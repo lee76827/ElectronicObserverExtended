@@ -1,5 +1,5 @@
 
-## 七四式電子観測儀
+## 七四式電子観測儀拡張版 / ElectronicObserverExtended (EOE)
 ---
 
 現在鋭意開発中の艦これ補助ブラウザです。  
@@ -32,6 +32,18 @@
 
 なお、全ての機能において艦これ本体の送受信する情報に干渉する操作は行っていません。
 
+### About ElectronicObserverExtended / 拡張版について
+---
+
+ElectronicObserverExtended implements Plugin APIs introduced by [tsanie's fork](https://github.com/tsanie/ElectronicObserver). This allows developers to add functionalities that can be distributed in a .dll file.
+
+To maintain compatibility with plugins developed for tsanie's fork, ElectronicObserverExtended chains a FiddlerCore proxy in front of Nekoxy. ElectronicObserverExtended with no plugins installed should behave exactly the same as the original ElectronicObserver, except:
+
+* It by default uses UTF-8 as file encoding.
+* It always respect system proxy settings, as designed by FiddlerCore.
+
+[Download Extended / 拡張版のダウンロード](https://ci.appveyor.com/project/CNA-Bld/electronicobserverextended/build/artifacts)
+
 ### ダウンロード
 ---
 
@@ -60,9 +72,11 @@ Assets.zip をプログラムと同じ場所にコピーするか、実行フォ
 * [Nekoxy](https://github.com/veigr/Nekoxy) (通信キャプチャ) - [MIT License](https://github.com/andanteyk/ElectronicObserver/blob/master/Licenses/Nekoxy.txt)
     * [TrotiNet](http://trotinet.sourceforge.net/) - [GNU Lesser General Public License v3.0](https://github.com/andanteyk/ElectronicObserver/blob/master/Licenses/LGPL.txt)
         * [log4net](https://logging.apache.org/log4net/) - [Apache License version 2.0](https://github.com/andanteyk/ElectronicObserver/blob/master/Licenses/Apache.txt)
+* [FiddlerCore](http://www.telerik.com/fiddler/fiddlercore) - [End User License Agreement for FiddlerCore](https://github.com/CAWAS/ElectronicObserverExtended/blob/extended/Licenses/FiddlerCore.txt)
 
 ### 連絡先など
 ---
 
 * 配布サイト:[ブルネイ工廠電気実験部](http://electronicobserver.blog.fc2.com/) (バグ報告・要望等はこちらにお願いします)
 * 開発:[Andante](https://twitter.com/andanteyk)
+* 拡張版開発:[中国ホワイト（アルバム）学院](https://github.com/CAWAS)
