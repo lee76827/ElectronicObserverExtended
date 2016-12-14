@@ -249,6 +249,57 @@ namespace ElectronicObserver.Utility {
 					SubFont = new Font( "Meiryo UI", 10, FontStyle.Regular, GraphicsUnit.Pixel );
 					BarColorMorphing = false;
 				}
+
+				#region Makai UI APIs
+
+				public int ThemeID => 0;
+				public SerializableColor BackColor => new SerializableColor(Color.FromArgb( 255, 245, 245, 245 ) );
+				public SerializableColor ForeColor => new SerializableColor(SystemColors.ControlText );
+				public SerializableColor SubForeColor => new SerializableColor(Color.FromArgb( 0x88, 0x88, 0x88 ) );
+				public SerializableColor HighlightColor => new SerializableColor(Color.FromArgb( 255, 0xFF, 0xFF, 0xCC ) );
+				public SerializableColor HighlightForeColor => new SerializableColor(SystemColors.ControlText);
+				public SerializableColor LineColor => new SerializableColor(SystemColors.ControlDark);
+				public SerializableColor ButtonBackColor => new SerializableColor(SystemColors.Control);
+				public SerializableColor FailedColor => new SerializableColor(Color.Red);
+				public SerializableColor EliteColor => new SerializableColor(Color.FromArgb(0xFF, 0x00, 0x00));
+				public SerializableColor FlagshipColor => new SerializableColor(Color.FromArgb(0xFF, 0x88, 0x00));
+				public SerializableColor LateModelEliteColor => new SerializableColor(Color.FromArgb(0x88, 0x00, 0x00));
+				public SerializableColor LateModelFlagshipColor => new SerializableColor(Color.FromArgb(0x88, 0x44, 0x00));
+				public SerializableColor LateModelColor => new SerializableColor(Color.FromArgb(0x00, 0x88, 0xFF));
+
+				public bool NotExpeditionBlink => true;
+
+				public SerializableColor Hp0Color => Color.FromArgb(0xFF, 0, 0);
+				public SerializableColor Hp25Color => Color.FromArgb(0xFF, 0x88, 0);
+				public SerializableColor Hp50Color => Color.FromArgb(0xFF, 0xCC, 0);
+				public SerializableColor Hp75Color => Color.FromArgb(0, 0xCC, 0);
+				public SerializableColor Hp100Color => Color.FromArgb(0, 0x44, 0xCC);
+				public SerializableColor HpIncrementColor => Color.FromArgb(0x44, 0xFF, 0);
+				public SerializableColor HpDecrementColor => Color.FromArgb(0x88, 0x22, 0x22);
+				public SerializableColor HpBackgroundColor => Color.FromArgb(0x88, 0x88, 0x88);
+
+				public int HpBackgroundOffset => 1;
+				public int HpThickness => 4;
+
+				public SerializableColor FleetReadyColor => Color.FromArgb(0x8A, 0xE0, 0x9D);
+				public SerializableColor FleetExpeditionColor => Color.FromArgb(0x62, 0xC0, 0xFF);
+				public SerializableColor FleetSortieColor => Color.FromArgb(0xE8, 0x49, 0x40);
+				public SerializableColor FleetNotReadyColor => Color.FromArgb(0xFD, 0xDF, 0x51);
+
+				public SerializableColor FleetDamageColor => Color.FromArgb(0xF0, 0x80, 0x80);
+
+				public SerializableColor QuestOrganization => Color.FromArgb(0xAA, 0xFF, 0xAA);
+				public SerializableColor QuestSortie => Color.FromArgb(0xFF, 0xCC, 0xCC);
+				public SerializableColor QuestExercise => Color.FromArgb(0xDD, 0xFF, 0xAA);
+				public SerializableColor QuestExpedition => Color.FromArgb(0xCC, 0xFF, 0xFF);
+				public SerializableColor QuestSupplyDocking => Color.FromArgb(0xFF, 0xFF, 0xCC);
+				public SerializableColor QuestArsenal => Color.FromArgb(0xDD, 0xCC, 0xBB);
+				public SerializableColor QuestRenovated => Color.FromArgb(0xDD, 0xCC, 0xFF);
+				public SerializableColor QuestForeColor => SystemColors.ControlText;
+
+				public bool AutoScaleDpi => false;
+
+				#endregion
 			}
 			/// <summary>UI</summary>
 			[DataMember]
@@ -1172,6 +1223,7 @@ namespace ElectronicObserver.Utility {
 				VersionUpdateTime = DateTimeHelper.TimeToCSVString( SoftwareInformation.UpdateTime );
 
 			}
+
 		}
 		private static ConfigurationData _config;
 
