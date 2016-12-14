@@ -19,6 +19,11 @@ before_build:
     - nuget restore
     - ps: (Get-Content ElectronicObserver\Utility\SoftwareInformation.cs -Encoding UTF8).replace("<BUILD_VERSION>", "$env:APPVEYOR_BUILD_VERSION") | Set-Content ElectronicObserver\Utility\SoftwareInformation.cs -Encoding UTF8
 
+before_package:
+    - mkdir output\Licenses
+    - copy Licenses\*.* output\Licenses\
+    - copy LICENSE output\LICENSE
+
 artifacts:
     - path: output
       name: 74eoe-$(APPVEYOR_BUILD_VERSION)
