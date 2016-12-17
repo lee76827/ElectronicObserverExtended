@@ -468,7 +468,8 @@ namespace ElectronicObserver.Window {
 					if ( persistString.StartsWith( FormIntegrate.PREFIX ) ) {
 						return FormIntegrate.FromPersistString( this, persistString );
 					}
-					return null;
+
+					return SubForms.FirstOrDefault(f => getPersistString(f) == persistString);
 			}
 
 		}
@@ -1511,11 +1512,20 @@ namespace ElectronicObserver.Window {
 				f.Show(this.MainDockPanel);
 			}
 		}
-		#endregion
 
 		private void pluginsToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			new DialogPlugins(this).Show(this);
 		}
+
+
+		string getPersistString(DockContent form)
+		{
+			var type = form.GetType();
+			var getPersistStringMethod = type.GetMethod("GetPersistString");
+			return getPersistStringMethod == null ? type.ToString() : (string)getPersistStringMethod.Invoke(form, new object[] { });
+		}
+
+		#endregion
 	}
 }
