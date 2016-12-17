@@ -1379,6 +1379,7 @@ namespace ElectronicObserver.Window {
 							flag = true;
 						}
 
+						// dock content
 						if (plugin.PluginType == PluginType.DockContent ||
 						    (plugin.PluginType & PluginType.DockContentPlugin) == PluginType.DockContentPlugin)
 						{
@@ -1459,7 +1460,7 @@ namespace ElectronicObserver.Window {
 						}
 
 						// observer
-						else if (plugin.PluginType == PluginType.Observer ||
+						if (plugin.PluginType == PluginType.Observer ||
 						         (plugin.PluginType & PluginType.ObserverPlugin) == PluginType.ObserverPlugin)
 						{
 
