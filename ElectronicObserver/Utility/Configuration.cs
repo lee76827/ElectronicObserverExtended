@@ -677,6 +677,10 @@ namespace ElectronicObserver.Utility {
 				/// </summary>
 				public bool ShowConditionIcon { get; set; }
 
+				/// <summary>
+				/// 艦名表示幅固定時の幅
+				/// </summary>
+				public int FixedShipNameWidth { get; set; }
 
 				public ConfigFormFleet() {
 					ShowAircraft = true;
@@ -690,6 +694,7 @@ namespace ElectronicObserver.Utility {
 					ShowAnchorageRepairingTimer = true;
 					BlinkAtCompletion = true;
 					ShowConditionIcon = true;
+					FixedShipNameWidth = 40;
 				}
 			}
 			/// <summary>[艦隊]ウィンドウ</summary>
