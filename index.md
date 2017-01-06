@@ -12,6 +12,7 @@ Proudly Brought to You by [the Chinese Academy of White (Album) Studies](https:/
 [Appveyor CI](https://ci.appveyor.com/project/CNA-Bld/electronicobserverextended/build/artifacts)
 
 ## 官方插件
+
 ### Teleporter
 Teleporter 可以修改 dmm.com 的区域 Cookies。这允许海外玩家不使用代理直接进行游戏。
 
