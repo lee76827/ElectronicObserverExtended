@@ -1,0 +1,8 @@
+title: ElectronicObserverExtended
+description: 艦これ補助ツール「七四式電子観測儀」拡張版
+google_analytics: 
+show_downloads: true
+theme: jekyll-theme-modernist
+
+gems:
+  - jekyll-mentions
