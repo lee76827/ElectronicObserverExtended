@@ -318,9 +318,6 @@ namespace ElectronicObserver.Window {
 			if ( !string.IsNullOrEmpty( config.DownstreamProxy ) ) {
 				return config.DownstreamProxy;
 
-			} else if ( config.UseSystemProxy ) {
-				return APIObserver.Instance.ProxyPort.ToString();
-
 			} else if ( config.UseUpstreamProxy ) {
 				return string.Format(
 					"http=127.0.0.1:{0};https={1}:{2}",
