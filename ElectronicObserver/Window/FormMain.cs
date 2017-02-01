@@ -9,6 +9,7 @@ using ElectronicObserver.Window.Dialog;
 using ElectronicObserver.Window.Integrate;
 using ElectronicObserver.Window.Support;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -67,7 +68,7 @@ namespace ElectronicObserver.Window {
 		#endregion
 
 
-		public List<IPluginHost> Plugins { get; private set; }
+		public ConcurrentBag<IPluginHost> Plugins { get; private set; }
 
 
 		public FormMain() {
@@ -172,7 +173,7 @@ namespace ElectronicObserver.Window {
 			SubForms.Add( fBaseAirCorps = new FormBaseAirCorps( this ) );
 			SubForms.Add( fJson = new FormJson( this ) );
 
-			await LoadPlugins();
+			LoadPlugins();
 
 			ConfigurationChanged();		//設定から初期化
 
@@ -1319,171 +1320,156 @@ namespace ElectronicObserver.Window {
 
 
 		#region Plugins
-
-		private object _sync = new object();
-
-		private async Task LoadPlugins()
+		
+		private void LoadPlugins()
 		{
-			Plugins = new List<IPluginHost>();
-
-			//pluginManager = new PluginManager(this);
+			Plugins = new ConcurrentBag<IPluginHost>();
 
 			var path = this.GetType().Assembly.Location;
 			path = path.Substring(0, path.LastIndexOf('\\') + 1) + "Plugins";
-			if (Directory.Exists(path))
+			if (!Directory.Exists(path))
 			{
-				bool flag = false;
+				return;
+			}
 
-				// load dlls
-				await Task.Factory.StartNew(() =>
+			var dockContentMenus = new List<ToolStripItem>();
+			var toolMenus = new List<ToolStripItem>();
+
+			// load dlls
+			Parallel.ForEach(Directory.GetFiles(path, "*.dll", SearchOption.TopDirectoryOnly), file =>
+			{
+				try
 				{
-					foreach (var file in Directory.GetFiles(path, "*.dll", SearchOption.TopDirectoryOnly))
+					var assembly = Assembly.LoadFile(file);
+					var pluginTypes = assembly.GetExportedTypes().Where(t => t.GetInterface(typeof(IPluginHost).FullName) != null);
+					foreach (var pluginType in pluginTypes)
 					{
-						try
-						{
-
-							var assembly = Assembly.LoadFile(file);
-							var pluginTypes = assembly.ExportedTypes.Where(t => t.GetInterface(typeof(IPluginHost).FullName) != null);
-							if (pluginTypes != null && pluginTypes.Count() > 0)
-							{
-								foreach (var pluginType in pluginTypes)
-								{
-									var plugin = (IPluginHost) assembly.CreateInstance(pluginType.FullName);
-									lock (_sync)
-									{
-										Plugins.Add(plugin);
-									}
-								}
-							}
-
-						}
-						catch (ReflectionTypeLoadException refEx)
-						{
-							Utility.ErrorReporter.SendLoadErrorReport(refEx, "载入插件时出错：" + file.Substring(file.LastIndexOf('\\') + 1));
-						}
-						catch (Exception ex)
-						{
-							Utility.ErrorReporter.SendErrorReport(ex, "载入插件时出错：" + file.Substring(file.LastIndexOf('\\') + 1));
-						}
+						var plugin = (IPluginHost) assembly.CreateInstance(pluginType.FullName);
+						Plugins.Add(plugin);
 					}
-				});
-
-				// instance them
-				foreach (var plugin in Plugins)
+				}
+				catch (ReflectionTypeLoadException refEx)
 				{
-					try
+					Utility.ErrorReporter.SendLoadErrorReport(refEx, "载入插件时出错：" + file.Substring(file.LastIndexOf('\\') + 1));
+				}
+				catch (Exception ex)
+				{
+					Utility.ErrorReporter.SendErrorReport(ex, "载入插件时出错：" + file.Substring(file.LastIndexOf('\\') + 1));
+				}
+			});
+
+			// instance them
+			foreach (var plugin in Plugins)
+			{
+				try
+				{
+					// dock content
+					if (plugin.PluginType == PluginType.DockContent ||
+					    (plugin.PluginType & PluginType.DockContentPlugin) == PluginType.DockContentPlugin)
 					{
-						if (!flag)
+						List<DockContent> plugins = new List<DockContent>();
+						foreach (var type in plugin.GetType().Assembly.GetExportedTypes().Where(t => t.BaseType == typeof(DockContent)))
 						{
-							var sep = new ToolStripSeparator();
-							StripMenu_View.DropDownItems.Add(sep);
-							flag = true;
-						}
-
-						// dock content
-						if (plugin.PluginType == PluginType.DockContent ||
-						    (plugin.PluginType & PluginType.DockContentPlugin) == PluginType.DockContentPlugin)
-						{
-							List<DockContent> plugins = new List<DockContent>();
-							foreach (var type in plugin.GetType().Assembly.ExportedTypes.Where(t => t.BaseType == typeof(DockContent)))
+							if (type != null)
 							{
-								if (type != null)
-								{
-									var form = (DockContent) type.GetConstructor(new[] {typeof(FormMain)}).Invoke(new object[] {this});
-									plugins.Add(form);
-								}
-							}
-							if (plugins.Count == 1)
-							{
-								var p = plugins[0];
-								var item = new ToolStripMenuItem
-								{
-									Text = plugin.MenuTitle ?? p.Text,
-									Tag = p
-								};
-								if (plugin.MenuIcon != null)
-									item.Image = plugin.MenuIcon;
-								item.Click += menuitem_Click;
-								StripMenu_View.DropDownItems.Add(item);
-							}
-							else if (plugins.Count > 1)
-							{
-								var item = new ToolStripMenuItem
-								{
-									Text = plugin.MenuTitle ?? plugins.First().Text
-								};
-								foreach (var p in plugins)
-								{
-									var subItem = new ToolStripMenuItem
-									{
-										Text = p.Text,
-										Tag = p
-									};
-									if (p.ShowIcon && p.Icon != null)
-										subItem.Image = p.Icon.ToBitmap();
-									subItem.Click += menuitem_Click;
-									item.DropDownItems.Add(subItem);
-								}
-								StripMenu_View.DropDownItems.Add(item);
-							}
-
-							SubForms.AddRange(plugins);
-						}
-
-						// service
-						if (plugin.PluginType == PluginType.Service ||
-						    (plugin.PluginType & PluginType.ServicePlugin) == PluginType.ServicePlugin)
-						{
-							if (plugin.RunService(this))
-							{
-								Utility.Logger.Add(2, string.Format("服务 {0}({1}) 已加载。", plugin.MenuTitle, plugin.Version));
-							}
-							else
-							{
-								Utility.Logger.Add(3,
-									string.Format("服务 {0}({1}, {2}) 加载时返回异常结果。", plugin.MenuTitle, plugin.Version, plugin.GetType().Name));
+								var form = (DockContent) type.GetConstructor(new[] {typeof(FormMain)}).Invoke(new object[] {this});
+								plugins.Add(form);
 							}
 						}
-
-						// dialog
-						if (plugin.PluginType == PluginType.Dialog ||
-						    (plugin.PluginType & PluginType.DialogPlugin) == PluginType.DialogPlugin)
+						if (plugins.Count == 1)
 						{
+							var p = plugins[0];
 							var item = new ToolStripMenuItem
 							{
-								Text = plugin.MenuTitle,
-								Tag = plugin
+								Text = plugin.MenuTitle ?? p.Text,
+								Tag = p
 							};
 							if (plugin.MenuIcon != null)
 								item.Image = plugin.MenuIcon;
-							item.Click += dialogPlugin_Click;
-							StripMenu_Tool.DropDownItems.Add(item);
+							item.Click += menuitem_Click;
+							dockContentMenus.Add(item);
 						}
-
-						// observer
-						if (plugin.PluginType == PluginType.Observer ||
-						         (plugin.PluginType & PluginType.ObserverPlugin) == PluginType.ObserverPlugin)
+						else if (plugins.Count > 1)
 						{
-
-							if (plugin is ObserverPlugin)
-								Utility.Configuration.Instance.ObserverPlugins.Add((ObserverPlugin) plugin);
-							else
-								Utility.Logger.Add(3, string.Format("观察器 {0}({1}) 类型无效。", plugin.MenuTitle, plugin.Version));
+							var item = new ToolStripMenuItem
+							{
+								Text = plugin.MenuTitle ?? plugins.First().Text
+							};
+							foreach (var p in plugins)
+							{
+								var subItem = new ToolStripMenuItem
+								{
+									Text = p.Text,
+									Tag = p
+								};
+								if (p.ShowIcon && p.Icon != null)
+									subItem.Image = p.Icon.ToBitmap();
+								subItem.Click += menuitem_Click;
+								item.DropDownItems.Add(subItem);
+							}
+							dockContentMenus.Add(item);
 						}
+						SubForms.AddRange(plugins);
+					}
 
-					}
-					catch (TargetInvocationException ex)
+					// service
+					if (plugin.PluginType == PluginType.Service ||
+					    (plugin.PluginType & PluginType.ServicePlugin) == PluginType.ServicePlugin)
 					{
-						Utility.ErrorReporter.SendErrorReport(ex.InnerException, "Reflection failed loading plugin: " + plugin);
+						if (plugin.RunService(this))
+						{
+							Utility.Logger.Add(2, string.Format("服务 {0}({1}) 已加载。", plugin.MenuTitle, plugin.Version));
+						}
+						else
+						{
+							Utility.Logger.Add(3,
+								string.Format("服务 {0}({1}, {2}) 加载时返回异常结果。", plugin.MenuTitle, plugin.Version, plugin.GetType().Name));
+						}
 					}
-					catch (Exception ex)
+
+					// dialog
+					if (plugin.PluginType == PluginType.Dialog ||
+					    (plugin.PluginType & PluginType.DialogPlugin) == PluginType.DialogPlugin)
 					{
-						Utility.ErrorReporter.SendErrorReport(ex, "载入插件时出错：" + plugin);
+						var item = new ToolStripMenuItem
+						{
+							Text = plugin.MenuTitle,
+							Tag = plugin
+						};
+						if (plugin.MenuIcon != null)
+							item.Image = plugin.MenuIcon;
+						item.Click += dialogPlugin_Click;
+						toolMenus.Add(item);
+					}
+
+					// observer
+					if (plugin.PluginType == PluginType.Observer ||
+					    (plugin.PluginType & PluginType.ObserverPlugin) == PluginType.ObserverPlugin)
+					{
+						if (plugin is ObserverPlugin)
+							Utility.Configuration.Instance.ObserverPlugins.Add((ObserverPlugin) plugin);
+						else
+							Utility.Logger.Add(3, string.Format("观察器 {0}({1}) 类型无效。", plugin.MenuTitle, plugin.Version));
 					}
 
 				}
+				catch (TargetInvocationException ex)
+				{
+					Utility.ErrorReporter.SendErrorReport(ex.InnerException, "Reflection failed loading plugin: " + plugin);
+				}
+				catch (Exception ex)
+				{
+					Utility.ErrorReporter.SendErrorReport(ex, "载入插件时出错：" + plugin);
+				}
 			}
 
+			if (dockContentMenus.Count > 0)
+			{
+				var sep = new ToolStripSeparator();
+				StripMenu_View.DropDownItems.Add(sep);
+				StripMenu_View.DropDownItems.AddRange(dockContentMenus.OrderBy(i => i.Text).ToArray());
+			}
+			StripMenu_Tool.DropDownItems.AddRange(toolMenus.OrderBy(i => i.Text).ToArray());
 		}
 
 		void dialogPlugin_Click(object sender, EventArgs e)
