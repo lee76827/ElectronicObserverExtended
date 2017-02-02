@@ -34,3 +34,8 @@ Teleporter 可以修改 dmm.com 的区域 Cookies。这允许海外玩家不使�
 
 ## 回报问题
 如果出现插件兼容性问题，请尽量优先联系插件原作者。若问题无法得到解决，请到本项目的 GitHub 页面提交 issue。官方插件的问题请直接在各自的 GitHub 页面提交 issue。
+
+## 外部链接
+
+* [发布贴 @NGA](http://bbs.nga.cn/read.php?tid=10663483)
+* [插件合集 & 旧插件兼容列表 @NGA](http://bbs.nga.cn/read.php?tid=10902699)
