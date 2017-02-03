@@ -53,10 +53,6 @@
     <NoWin32Manifest>true</NoWin32Manifest>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="BasicFormatsForCore, Version=2.6.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\FiddlerCore2.1.0.0\lib\net40\BasicFormatsForCore.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="BCMakeCert, Version=2.0.5.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\FiddlerCore.4.4.8.4\lib\net40\BCMakeCert.dll</HintPath>
       <Private>True</Private>
