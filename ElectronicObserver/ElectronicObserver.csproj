@@ -854,6 +854,10 @@
       <Project>{8bb3e37d-09fb-40b9-958a-8cdcd18ef1f5}</Project>
       <Name>BrowserLib</Name>
     </ProjectReference>
+    <ProjectReference Include="..\DockPanelSuite\WinFormsUI\ThemeVS2012Light.csproj">
+      <Project>{4ED4FDB5-9FD0-49E6-876D-1635F727C755}</Project>
+      <Name>ThemeVS2012Light</Name>
+    </ProjectReference>
     <ProjectReference Include="..\DockPanelSuite\WinFormsUI\WinFormsUI.csproj">
       <Project>{c75532c4-765b-418e-b09b-46d36b2abdb1}</Project>
       <Name>WinFormsUI</Name>

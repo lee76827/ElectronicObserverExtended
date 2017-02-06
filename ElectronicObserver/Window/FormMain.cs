@@ -84,6 +84,7 @@ namespace ElectronicObserver.Window {
 			Utility.Configuration.Instance.Load( this );
 
 			Program.Window_Font = Utility.Configuration.Config.UI.MainFont;
+			MainDockPanel.Theme = new VS2012LightTheme();
 
 			Utility.Logger.Instance.LogAdded += new Utility.LogAddedEventHandler( ( Utility.Logger.LogData data ) => {
 				if ( InvokeRequired ) {
