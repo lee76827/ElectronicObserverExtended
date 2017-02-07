@@ -174,7 +174,7 @@ namespace ElectronicObserver.Window {
 			SubForms.Add( fBaseAirCorps = new FormBaseAirCorps( this ) );
 			SubForms.Add( fJson = new FormJson( this ) );
 
-			LoadPlugins();
+			await LoadPlugins();
 
 			ConfigurationChanged();		//設定から初期化
 
@@ -1322,7 +1322,7 @@ namespace ElectronicObserver.Window {
 
 		#region Plugins
 		
-		private void LoadPlugins()
+		private async Task LoadPlugins()
 		{
 			Plugins = new ConcurrentBag<IPluginHost>();
 
@@ -1336,30 +1336,39 @@ namespace ElectronicObserver.Window {
 			var dockContentMenus = new List<ToolStripItem>();
 			var toolMenus = new List<ToolStripItem>();
 
-			// load dlls
-			Parallel.ForEach(Directory.GetFiles(path, "*.dll", SearchOption.TopDirectoryOnly), file =>
+			// Load dlls
+			// We need to move this to another thread so that when error happens, UI thread is able
+			// to process log from ErrorReporter.
+			await Task.Factory.StartNew(() =>
 			{
-				try
+				Parallel.ForEach(Directory.GetFiles(path, "*.dll", SearchOption.TopDirectoryOnly), file =>
 				{
-					var assembly = Assembly.LoadFile(file);
-					var pluginTypes = assembly.GetExportedTypes().Where(t => t.GetInterface(typeof(IPluginHost).FullName) != null);
-					foreach (var pluginType in pluginTypes)
+					try
 					{
-						var plugin = (IPluginHost) assembly.CreateInstance(pluginType.FullName);
-						Plugins.Add(plugin);
+						var assembly = Assembly.LoadFile(file);
+						var pluginTypes = assembly.GetExportedTypes().Where(t => t.GetInterface(typeof(IPluginHost).FullName) != null);
+						foreach (var pluginType in pluginTypes)
+						{
+							var plugin = (IPluginHost) Activator.CreateInstance(pluginType);
+							Plugins.Add(plugin);
+						}
 					}
-				}
-				catch (ReflectionTypeLoadException refEx)
-				{
-					Utility.ErrorReporter.SendLoadErrorReport(refEx, "载入插件时出错：" + file.Substring(file.LastIndexOf('\\') + 1));
-				}
-				catch (Exception ex)
-				{
-					Utility.ErrorReporter.SendErrorReport(ex, "载入插件时出错：" + file.Substring(file.LastIndexOf('\\') + 1));
-				}
+					catch (ReflectionTypeLoadException refEx)
+					{
+						Utility.ErrorReporter.SendLoadErrorReport(refEx, "载入插件时出错：" + file.Substring(file.LastIndexOf('\\') + 1));
+					}
+					catch (Exception ex)
+					{
+						Utility.ErrorReporter.SendErrorReport(ex, "载入插件时出错：" + file.Substring(file.LastIndexOf('\\') + 1));
+					}
+				});
 			});
 
-			// instance them
+			// Instantiate them
+			// Don't attempt to parallelize this. We need to run everything in UI thread because
+			// 1) DockContents need to be instantiated in UI thread or we cannot control them.
+			// 2) If a plugin decides to call anything here it needs to be in the same thread with us.
+			// So just running this synchronized seems to be the best solution.
 			foreach (var plugin in Plugins)
 			{
 				try
@@ -1368,18 +1377,15 @@ namespace ElectronicObserver.Window {
 					if (plugin.PluginType == PluginType.DockContent ||
 					    (plugin.PluginType & PluginType.DockContentPlugin) == PluginType.DockContentPlugin)
 					{
-						List<DockContent> plugins = new List<DockContent>();
+						List<DockContent> pluginDockContents = new List<DockContent>();
 						foreach (var type in plugin.GetType().Assembly.GetExportedTypes().Where(t => t.BaseType == typeof(DockContent)))
 						{
-							if (type != null)
-							{
-								var form = (DockContent) type.GetConstructor(new[] {typeof(FormMain)}).Invoke(new object[] {this});
-								plugins.Add(form);
-							}
+							var form = (DockContent) type.GetConstructor(new[] {typeof(FormMain)}).Invoke(new object[] {this});
+							pluginDockContents.Add(form);
 						}
-						if (plugins.Count == 1)
+						if (pluginDockContents.Count == 1)
 						{
-							var p = plugins[0];
+							var p = pluginDockContents[0];
 							var item = new ToolStripMenuItem
 							{
 								Text = plugin.MenuTitle ?? p.Text,
@@ -1390,13 +1396,13 @@ namespace ElectronicObserver.Window {
 							item.Click += menuitem_Click;
 							dockContentMenus.Add(item);
 						}
-						else if (plugins.Count > 1)
+						else if (pluginDockContents.Count > 1)
 						{
 							var item = new ToolStripMenuItem
 							{
-								Text = plugin.MenuTitle ?? plugins.First().Text
+								Text = plugin.MenuTitle ?? pluginDockContents.First().Text
 							};
-							foreach (var p in plugins)
+							foreach (var p in pluginDockContents)
 							{
 								var subItem = new ToolStripMenuItem
 								{
@@ -1410,7 +1416,7 @@ namespace ElectronicObserver.Window {
 							}
 							dockContentMenus.Add(item);
 						}
-						SubForms.AddRange(plugins);
+						SubForms.AddRange(pluginDockContents);
 					}
 
 					// service
