@@ -1,4 +1,4 @@
-version: 2.5.3.0-extended.{build}
+version: 2.5.4.0-extended.{build}
 
 branches:
     only:
@@ -7,7 +7,7 @@ branches:
 assembly_info:
     patch: true
     file: AssemblyInfo.*
-    assembly_version: "2.5.3.{build}"
+    assembly_version: "2.5.4.{build}"
     assembly_file_version: "{version}"
     assembly_informational_version: "{version}"
 
