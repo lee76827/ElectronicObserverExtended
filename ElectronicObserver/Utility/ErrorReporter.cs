@@ -43,7 +43,7 @@ namespace ElectronicObserver.Utility {
 			try {
 				using ( StreamWriter sw = new StreamWriter( path, false, new System.Text.UTF8Encoding( false ) ) ) {
 
-					sw.WriteLine( "エラーレポート [ver. {0}] : {1}", SoftwareInformation.VersionEnglish, DateTimeHelper.TimeToCSVString( DateTime.Now ) );
+					sw.WriteLine( "エラーレポート [ver. {0}] : {1}", SoftwareInformation.BuildVersion, DateTimeHelper.TimeToCSVString( DateTime.Now ) );
 					sw.WriteLine( "エラー : {0}", ex.GetType().Name );
 					sw.WriteLine( ex.Message );
 					sw.WriteLine( "追加情報 : {0}", message );
@@ -82,7 +82,7 @@ namespace ElectronicObserver.Utility {
 				using (StreamWriter sw = new StreamWriter(path, false, new System.Text.UTF8Encoding(false)))
 				{
 
-					sw.WriteLine("错误报告日期 : {0}", DateTime.Now);
+					sw.WriteLine("错误报告 [ver. {0}] : {1}", SoftwareInformation.BuildVersion, DateTime.Now);
 					sw.WriteLine("错误 : {0}", ex.GetType().Name);
 					sw.WriteLine(ex.Message);
 					sw.WriteLine("追加信息 : {0}", message);
