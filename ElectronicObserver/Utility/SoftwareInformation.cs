@@ -63,6 +63,7 @@ namespace ElectronicObserver.Utility {
 		private static System.Net.WebClient client;
 		private static readonly Uri uri = new Uri("https://ci.appveyor.com/api/projects/CNA-Bld/electronicobserverextended/branch/extended");
 		public static string BuildVersion => "<BUILD_VERSION>";
+		public static string BuildTime => "<BUILD_TIME>";
 
 		public static void CheckUpdate() {
 

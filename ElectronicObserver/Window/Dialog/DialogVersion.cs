@@ -15,7 +15,7 @@ namespace ElectronicObserver.Window.Dialog {
 		public DialogVersion() {
 			InitializeComponent();
 
-			TextVersion.Text = string.Format( "{0} (ver. {1} - {2} Release)", SoftwareInformation.VersionJapanese, SoftwareInformation.BuildVersion, SoftwareInformation.UpdateTime.ToString( "d" ) ); 
+			TextVersion.Text = string.Format( "{0} {1}, {2}", SoftwareInformation.VersionJapanese, SoftwareInformation.BuildVersion, SoftwareInformation.BuildTime ); 
 		}
 
 		private void TextAuthor_LinkClicked( object sender, LinkLabelLinkClickedEventArgs e ) {

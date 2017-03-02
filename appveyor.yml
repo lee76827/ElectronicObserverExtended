@@ -12,7 +12,7 @@ assembly_info:
     assembly_informational_version: "{version}"
 
 before_build:
-    - ps: (Get-Content ElectronicObserver\Utility\SoftwareInformation.cs -Encoding UTF8).replace("<BUILD_VERSION>", "$env:APPVEYOR_BUILD_VERSION") | Set-Content ElectronicObserver\Utility\SoftwareInformation.cs -Encoding UTF8
+    - ps: (Get-Content ElectronicObserver\Utility\SoftwareInformation.cs -Encoding UTF8).replace("<BUILD_VERSION>", "$env:APPVEYOR_BUILD_VERSION").replace("<BUILD_TIME>", (Get-Date -Format g)) | Set-Content ElectronicObserver\Utility\SoftwareInformation.cs -Encoding UTF8
     - mkdir output-template
     - mkdir output-template\Licenses
     - copy Licenses\*.* output-template\Licenses\
