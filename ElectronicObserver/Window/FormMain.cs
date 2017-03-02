@@ -1343,6 +1343,7 @@ namespace ElectronicObserver.Window {
 			{
 				Parallel.ForEach(Directory.GetFiles(path, "*.dll", SearchOption.TopDirectoryOnly), file =>
 				{
+					var name = file.Substring(file.LastIndexOf('\\') + 1);
 					try
 					{
 						var assembly = Assembly.LoadFile(file);
@@ -1355,11 +1356,15 @@ namespace ElectronicObserver.Window {
 					}
 					catch (ReflectionTypeLoadException refEx)
 					{
-						Utility.ErrorReporter.SendLoadErrorReport(refEx, "载入插件时出错：" + file.Substring(file.LastIndexOf('\\') + 1));
+						Utility.ErrorReporter.SendLoadErrorReport(refEx, "载入插件时出错：" + name);
+					}
+					catch (TargetInvocationException ex)
+					{
+						Utility.ErrorReporter.SendErrorReport(ex.InnerException, "Reflection failed loading plugin: " + name);
 					}
 					catch (Exception ex)
 					{
-						Utility.ErrorReporter.SendErrorReport(ex, "载入插件时出错：" + file.Substring(file.LastIndexOf('\\') + 1));
+						Utility.ErrorReporter.SendErrorReport(ex, "载入插件时出错：" + name);
 					}
 				});
 			});
