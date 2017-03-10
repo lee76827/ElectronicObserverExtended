@@ -39,3 +39,11 @@ artifacts:
       name: 74eoe-$(APPVEYOR_BUILD_VERSION)
     - path: output-net40
       name: 74eoe-net40-$(APPVEYOR_BUILD_VERSION)
+
+deploy:
+  provider: GitHub
+  auth_token:
+    secure: LRyrixQEgYtxLDVKSCkxkjmAzMS4gi+DABeBjkT1r9Tunat6Satr15XuwkCWwoY0
+  artifact: /.*/
+  on:
+    branch: extended
