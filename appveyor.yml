@@ -4,6 +4,8 @@ branches:
     only:
         - extended
 
+skip_tags: true
+
 assembly_info:
     patch: true
     file: AssemblyInfo.*
