@@ -26,6 +26,9 @@ build_script:
     - nuget restore
     - msbuild ElectronicObserver.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
     - move output output-net45
+    - xcopy /S /E output-template output\
+    - msbuild ElectronicObserver.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:Configuration=Release
+    - move output output-net45-release
     - git checkout extended-net40
     - xcopy /S /E output-template output\
     - git submodule update --init --recursive
@@ -37,6 +40,8 @@ build_script:
 artifacts:
     - path: output-net45
       name: 74eoe-$(APPVEYOR_BUILD_VERSION)
+    - path: output-net45-release
+      name: 74eoe-release-$(APPVEYOR_BUILD_VERSION)
     - path: output-net40
       name: 74eoe-net40-$(APPVEYOR_BUILD_VERSION)
 
