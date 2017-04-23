@@ -33,6 +33,7 @@ build_script:
     - move output output-net45-release
     - git checkout extended-net40
     - xcopy /S /E output-template output\
+    - git submodule sync
     - git submodule update --init --recursive
     - nuget restore
     - msbuild ElectronicObserver.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
