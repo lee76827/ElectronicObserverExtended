@@ -12,7 +12,9 @@ Proudly Brought to You by [the Chinese Academy of White (Album) Studies](https:/
 [![Build status](https://ci.appveyor.com/api/projects/status/5gus516iu71rdotq?svg=true)](https://ci.appveyor.com/project/CNA-Bld/electronicobserverextended)
 
 ## 下载
-[Appveyor CI](https://ci.appveyor.com/project/CNA-Bld/electronicobserverextended/build/artifacts)
+
+* [GitHub Release](https://github.com/CAWAS/ElectronicObserverExtended/releases)
+* [Appveyor CI](https://ci.appveyor.com/project/CNA-Bld/electronicobserverextended/build/artifacts)
 
 .Net Framework 4.0 兼容版现在与一般版本同时发布，请在 Appveyor 选择适合的版本下载。
 
