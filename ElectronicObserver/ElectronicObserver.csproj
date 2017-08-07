@@ -307,6 +307,12 @@
     <Compile Include="Window\Control\ColorPicker.designer.cs">
       <DependentUpon>ColorPicker.cs</DependentUpon>
     </Compile>
+    <Compile Include="Window\Control\FleetState.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Window\Control\FleetState.Designer.cs">
+      <DependentUpon>FleetState.cs</DependentUpon>
+    </Compile>
     <Compile Include="Window\Control\ImageLabel.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -649,6 +655,9 @@
     <Compile Include="Window\Support\WindowPlacementManager.cs" />
     <EmbeddedResource Include="Window\Control\ColorPicker.resx">
       <DependentUpon>ColorPicker.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Window\Control\FleetState.resx">
+      <DependentUpon>FleetState.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Window\Control\ImageLabel.resx">
       <DependentUpon>ImageLabel.cs</DependentUpon>
