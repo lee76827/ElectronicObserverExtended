@@ -1,5 +1,4 @@
 
-=======
 ## 七四式電子観測儀拡張版 / ElectronicObserverExtended (EOE)
 
 現在鋭意開発中の艦これ補助ブラウザです。  
