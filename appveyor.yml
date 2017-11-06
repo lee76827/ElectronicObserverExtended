@@ -13,6 +13,8 @@ assembly_info:
     assembly_file_version: "{version}"
     assembly_informational_version: "{version}"
 
+image: Visual Studio 2017
+
 before_build:
     - ps: (Get-Content ElectronicObserver\Utility\SoftwareInformation.cs -Encoding UTF8).replace("<BUILD_VERSION>", "$env:APPVEYOR_BUILD_VERSION").replace("<BUILD_TIME>", (Get-Date -Format g)) | Set-Content ElectronicObserver\Utility\SoftwareInformation.cs -Encoding UTF8
     - mkdir output-template
