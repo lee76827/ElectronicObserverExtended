@@ -465,10 +465,7 @@ namespace ElectronicObserver.Window
 		/// <summary>
 		/// ハートビート用
 		/// </summary>
-		public IntPtr HWND
-		{
-			get { return this.Handle; }
-		}
+		public IntPtr HWND => this.Handle;
 
 		protected override string GetPersistString()
 		{

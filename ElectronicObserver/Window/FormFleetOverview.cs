@@ -22,7 +22,7 @@ namespace ElectronicObserver.Window
 	public partial class FormFleetOverview : DockContent
 	{
 
-		private class TableFleetControl
+		private class TableFleetControl : IDisposable
 		{
 
 			public ImageLabel Number;
@@ -35,19 +35,23 @@ namespace ElectronicObserver.Window
 
 				#region Initialize
 
-				Number = new ImageLabel();
-				Number.Anchor = AnchorStyles.Left;
-				Number.ImageAlign = ContentAlignment.MiddleCenter;
-				Number.Padding = new Padding(0, 1, 0, 1);
-				Number.Margin = new Padding(2, 1, 2, 1);
-				Number.Text = string.Format("#{0}:", fleetID);
-				Number.AutoSize = true;
+				Number = new ImageLabel
+				{
+					Anchor = AnchorStyles.Left,
+					ImageAlign = ContentAlignment.MiddleCenter,
+					Padding = new Padding(0, 1, 0, 1),
+					Margin = new Padding(2, 1, 2, 1),
+					Text = string.Format("#{0}:", fleetID),
+					AutoSize = true
+				};
 
-				State = new FleetState();
-				State.Anchor = AnchorStyles.Left;
-				State.Padding = new Padding();
-				State.Margin = new Padding();
-				State.AutoSize = true;
+				State = new FleetState
+				{
+					Anchor = AnchorStyles.Left,
+					Padding = new Padding(),
+					Margin = new Padding(),
+					AutoSize = true
+				};
 
 				ConfigurationChanged(parent);
 
@@ -100,6 +104,12 @@ namespace ElectronicObserver.Window
 				State.BackColor = Color.Transparent;
 				Update();
 			}
+
+			public void Dispose()
+			{
+				Number.Dispose();
+				State.Dispose();
+			}
 		}
 
 
@@ -122,14 +132,16 @@ namespace ElectronicObserver.Window
 			}
 
 			{
-				AnchorageRepairingTimer = new ImageLabel();
-				AnchorageRepairingTimer.Anchor = AnchorStyles.Left;
-				AnchorageRepairingTimer.Padding = new Padding(0, 1, 0, 1);
-				AnchorageRepairingTimer.Margin = new Padding(2, 1, 2, 1);
-				AnchorageRepairingTimer.ImageList = ResourceManager.Instance.Icons;
-				AnchorageRepairingTimer.ImageIndex = (int)ResourceManager.IconContent.FleetDocking;
-				AnchorageRepairingTimer.Text = "-";
-				AnchorageRepairingTimer.AutoSize = true;
+				AnchorageRepairingTimer = new ImageLabel
+				{
+					Anchor = AnchorStyles.Left,
+					Padding = new Padding(0, 1, 0, 1),
+					Margin = new Padding(2, 1, 2, 1),
+					ImageList = ResourceManager.Instance.Icons,
+					ImageIndex = (int)ResourceManager.IconContent.FleetDocking,
+					Text = "-",
+					AutoSize = true
+				};
 				//AnchorageRepairingTimer.Visible = false;
 
 				TableFleet.Controls.Add(AnchorageRepairingTimer, 1, 4);
@@ -138,15 +150,17 @@ namespace ElectronicObserver.Window
 
 			#region CombinedTag
 			{
-				CombinedTag = new ImageLabel();
-				CombinedTag.Anchor = AnchorStyles.Left;
-				CombinedTag.Padding = new Padding(0, 1, 0, 1);
-				CombinedTag.Margin = new Padding(2, 1, 2, 1);
-				CombinedTag.ImageList = ResourceManager.Instance.Icons;
-				CombinedTag.ImageIndex = (int)ResourceManager.IconContent.FleetCombined;
-				CombinedTag.Text = "-";
-				CombinedTag.AutoSize = true;
-				CombinedTag.Visible = false;
+				CombinedTag = new ImageLabel
+				{
+					Anchor = AnchorStyles.Left,
+					Padding = new Padding(0, 1, 0, 1),
+					Margin = new Padding(2, 1, 2, 1),
+					ImageList = ResourceManager.Instance.Icons,
+					ImageIndex = (int)ResourceManager.IconContent.FleetCombined,
+					Text = "-",
+					AutoSize = true,
+					Visible = false
+				};
 
 				TableFleet.Controls.Add(CombinedTag, 1, 5);
 
@@ -241,11 +255,16 @@ namespace ElectronicObserver.Window
 
 				int tp = Calculator.GetTPDamage(fleet1) + Calculator.GetTPDamage(fleet2);
 
+				var members = fleet1.MembersWithoutEscaped.Concat(fleet2.MembersWithoutEscaped).Where(s => s != null);
+
+				// 各艦ごとの ドラム缶 or 大発系 を搭載している個数
+				var transport = members.Select(s => s.AllSlotInstanceMaster.Count(eq => eq?.CategoryType == EquipmentTypes.TransportContainer));
+				var landing = members.Select(s => s.AllSlotInstanceMaster.Count(eq => eq?.CategoryType == EquipmentTypes.LandingCraft || eq?.CategoryType == EquipmentTypes.SpecialAmphibiousTank));
+
+
 				ToolTipInfo.SetToolTip(CombinedTag, string.Format("ドラム缶搭載: {0}個\r\n大発動艇搭載: {1}個\r\n輸送量(TP): S {2} / A {3}\r\n\r\n制空戦力合計: {4}\r\n索敵能力合計: {5:f2}\r\n新判定式(33):\r\n　分岐点係数1: {6:f2}\r\n　分岐点係数3: {7:f2}\r\n　分岐点係数4: {8:f2}",
-					fleet1.MembersWithoutEscaped.Sum(s => s == null ? 0 : s.AllSlotInstanceMaster.Count(eq => eq != null && eq.CategoryType == 30)) +
-					fleet2.MembersWithoutEscaped.Sum(s => s == null ? 0 : s.AllSlotInstanceMaster.Count(eq => eq != null && eq.CategoryType == 30)),
-					fleet1.MembersWithoutEscaped.Sum(s => s == null ? 0 : s.AllSlotInstanceMaster.Count(eq => eq != null && eq.CategoryType == 24)) +
-					fleet2.MembersWithoutEscaped.Sum(s => s == null ? 0 : s.AllSlotInstanceMaster.Count(eq => eq != null && eq.CategoryType == 24)),
+					transport.Sum(),
+					landing.Sum(),
 					tp,
 					(int)Math.Floor(tp * 0.7),
 					Calculator.GetAirSuperiority(fleet1) + Calculator.GetAirSuperiority(fleet2),

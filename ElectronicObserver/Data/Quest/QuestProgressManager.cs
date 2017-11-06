@@ -32,7 +32,7 @@ namespace ElectronicObserver.Data.Quest
 	[KnownType(typeof(ProgressPractice))]
 	[KnownType(typeof(ProgressSlaughter))]
 	[KnownType(typeof(ProgressSupply))]
-	public class QuestProgressManager : DataStorage
+	public sealed class QuestProgressManager : DataStorage
 	{
 
 
@@ -72,8 +72,7 @@ namespace ElectronicObserver.Data.Quest
 
 		public QuestProgressManager()
 		{
-
-			//Initialize();		//二重init禁止！！！！
+			Initialize();
 		}
 
 
@@ -157,10 +156,7 @@ namespace ElectronicObserver.Data.Quest
 
 		}
 
-		public ProgressData this[int key]
-		{
-			get { return Progresses[key]; }
-		}
+		public ProgressData this[int key] => Progresses[key];
 
 
 
@@ -394,25 +390,14 @@ namespace ElectronicObserver.Data.Quest
 		{
 
 			var bm = KCDatabase.Instance.Battle;
-			ReadOnlyCollection<int> hps = null;
+			var battle = bm.SecondBattle ?? bm.FirstBattle;
+
+			var hps = battle.ResultHPs;
+			if (hps == null)
+				return;
 
 
 			#region Slaughter
-
-
-			if (bm.StartsFromDayBattle)
-			{
-				if (bm.BattleNight != null) hps = bm.BattleNight.ResultHPs;
-				else hps = bm.BattleDay.ResultHPs;
-
-			}
-			else
-			{
-				if (bm.BattleDay != null) hps = bm.BattleDay.ResultHPs;
-				else hps = bm.BattleNight.ResultHPs;
-			}
-
-			if (hps == null) return;
 
 			var slaughterList = Progresses.Values.OfType<ProgressSlaughter>();
 
@@ -421,9 +406,9 @@ namespace ElectronicObserver.Data.Quest
 
 				if (hps[i + 6] <= 0)
 				{
-
-					var ship = bm.BattleDay != null ? bm.BattleDay.Initial.EnemyMembersInstance[i] : bm.BattleNight.Initial.EnemyMembersInstance[i];
-					if (ship == null) continue;
+					var ship = battle.Initial.EnemyMembersInstance[i];
+					if (ship == null)
+						continue;
 
 					foreach (var p in slaughterList)
 						p.Increment(ship.ShipType);
@@ -431,15 +416,14 @@ namespace ElectronicObserver.Data.Quest
 
 				if (bm.IsEnemyCombined && hps[i + 18] <= 0)
 				{
-
-					var ship = bm.BattleDay != null ? bm.BattleDay.Initial.EnemyMembersEscortInstance[i] : bm.BattleNight.Initial.EnemyMembersEscortInstance[i];
-					if (ship == null) continue;
+					var ship = battle.Initial.EnemyMembersEscortInstance[i];
+					if (ship == null)
+						continue;
 
 					foreach (var p in slaughterList)
 						p.Increment(ship.ShipType);
 				}
 			}
-
 
 			#endregion
 

@@ -67,7 +67,7 @@ namespace ElectronicObserver.Data.Battle
 		/// <summary>
 		/// 昼戦から開始する戦闘かどうか
 		/// </summary>
-		public bool StartsFromDayBattle { get { return !StartsFromNightBattle; } }
+		public bool StartsFromDayBattle => !StartsFromNightBattle;
 
 		/// <summary>
 		/// 夜戦から開始する戦闘かどうか
@@ -84,51 +84,33 @@ namespace ElectronicObserver.Data.Battle
 		/// <summary>
 		/// 連合艦隊戦かどうか
 		/// </summary>
-		public bool IsCombinedBattle { get { return (BattleMode & BattleModes.CombinedMask) != 0; } }
+		public bool IsCombinedBattle => (BattleMode & BattleModes.CombinedMask) != 0;
 
 		/// <summary>
 		/// 演習かどうか
 		/// </summary>
-		public bool IsPractice { get { return (BattleMode & BattleModes.BattlePhaseMask) == BattleModes.Practice; } }
+		public bool IsPractice => (BattleMode & BattleModes.BattlePhaseMask) == BattleModes.Practice;
 
 		/// <summary>
 		/// 敵が連合艦隊かどうか
 		/// </summary>
-		public bool IsEnemyCombined { get { return (BattleMode & BattleModes.EnemyCombinedFleet) != 0; } }
+		public bool IsEnemyCombined => (BattleMode & BattleModes.EnemyCombinedFleet) != 0;
 
 		/// <summary>
 		/// 基地空襲戦かどうか
 		/// </summary>
-		public bool IsBaseAirRaid { get { return (BattleMode & BattleModes.BattlePhaseMask) == BattleModes.BaseAirRaid; } }
+		public bool IsBaseAirRaid => (BattleMode & BattleModes.BattlePhaseMask) == BattleModes.BaseAirRaid;
 
 
 		/// <summary>
 		/// 1回目の戦闘
 		/// </summary>
-		public BattleData FirstBattle
-		{
-			get
-			{
-				if (StartsFromDayBattle)
-					return BattleDay;
-				else
-					return BattleNight;
-			}
-		}
+		public BattleData FirstBattle => StartsFromDayBattle ? (BattleData)BattleDay : BattleNight;
 
 		/// <summary>
 		/// 2回目の戦闘
 		/// </summary>
-		public BattleData SecondBattle
-		{
-			get
-			{
-				if (StartsFromDayBattle)
-					return BattleNight;
-				else
-					return BattleDay;
-			}
-		}
+		public BattleData SecondBattle => StartsFromDayBattle ? (BattleData)BattleNight : BattleDay;
 
 
 		/// <summary>
@@ -425,7 +407,7 @@ namespace ElectronicObserver.Data.Battle
 					{
 						var item = KCDatabase.Instance.UseItems[itemID];
 						var itemmaster = KCDatabase.Instance.MasterUseItems[itemID];
-						Utility.Logger.Add(2, string.Format("アイテム「{0}」を入手しました。( 合計: {1}個 )", itemmaster != null ? itemmaster.Name : ("不明なアイテム - ID:" + itemID), (item != null ? item.Count : 0) + DroppedItemCount[itemID]));
+						Utility.Logger.Add(2, string.Format("アイテム「{0}」を入手しました。( 合計: {1}個 )", itemmaster?.Name ?? ("不明なアイテム - ID:" + itemID), (item?.Count ?? 0) + DroppedItemCount[itemID]));
 					}
 				}
 
@@ -521,7 +503,7 @@ namespace ElectronicObserver.Data.Battle
 
 
 			var friend = activeBattle.Initial.FriendFleet.MembersWithoutEscaped;
-			var friendescort = activeBattle.Initial.FriendFleetEscort == null ? null : activeBattle.Initial.FriendFleetEscort.MembersWithoutEscaped;
+			var friendescort = activeBattle.Initial.FriendFleetEscort?.MembersWithoutEscaped;
 
 			var resultHPs = activeBattle.ResultHPs;
 
@@ -693,9 +675,9 @@ namespace ElectronicObserver.Data.Battle
 				if (IsPractice)
 					info = "practice";
 				else
-					info = string.Format("{0}-{1}-{2}", Compass.MapAreaID, Compass.MapInfoID, Compass.Destination);
+					info = $"{Compass.MapAreaID}-{Compass.MapInfoID}-{Compass.Destination}";
 
-				string path = string.Format("{0}\\{1}@{2}.txt", parent, DateTimeHelper.GetTimeStamp(), info);
+				string path = $"{parent}\\{DateTimeHelper.GetTimeStamp()}@{info}.txt";
 
 				using (var sw = new StreamWriter(path, false, Utility.Configuration.Config.Log.FileEncoding))
 				{

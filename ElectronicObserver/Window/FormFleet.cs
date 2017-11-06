@@ -29,7 +29,7 @@ namespace ElectronicObserver.Window
 		private bool IsRemodeling = false;
 
 
-		private class TableFleetControl
+		private class TableFleetControl : IDisposable
 		{
 			public Label Name;
 			public FleetState State;
@@ -43,49 +43,59 @@ namespace ElectronicObserver.Window
 
 				#region Initialize
 
-				Name = new Label();
-				Name.Text = "[" + parent.FleetID.ToString() + "]";
-				Name.Anchor = AnchorStyles.Left;
-				Name.ForeColor = parent.MainFontColor;
-				Name.Padding = new Padding(0, 1, 0, 1);
-				Name.Margin = new Padding(2, 0, 2, 0);
-				Name.AutoSize = true;
-				//Name.Visible = false;
-				Name.Cursor = Cursors.Help;
+				Name = new Label
+				{
+					Text = "[" + parent.FleetID.ToString() + "]",
+					Anchor = AnchorStyles.Left,
+					ForeColor = parent.MainFontColor,
+					Padding = new Padding(0, 1, 0, 1),
+					Margin = new Padding(2, 0, 2, 0),
+					AutoSize = true,
+					//Name.Visible = false;
+					Cursor = Cursors.Help
+				};
 
-				State = new FleetState();
-				State.Anchor = AnchorStyles.Left;
-				State.ForeColor = parent.MainFontColor;
-				State.Padding = new Padding();
-				State.Margin = new Padding();
-				State.AutoSize = true;
+				State = new FleetState
+				{
+					Anchor = AnchorStyles.Left,
+					ForeColor = parent.MainFontColor,
+					Padding = new Padding(),
+					Margin = new Padding(),
+					AutoSize = true
+				};
 
-				AirSuperiority = new ImageLabel();
-				AirSuperiority.Anchor = AnchorStyles.Left;
-				AirSuperiority.ForeColor = parent.MainFontColor;
-				AirSuperiority.ImageList = ResourceManager.Instance.Equipments;
-				AirSuperiority.ImageIndex = (int)ResourceManager.EquipmentContent.CarrierBasedFighter;
-				AirSuperiority.Padding = new Padding(2, 2, 2, 2);
-				AirSuperiority.Margin = new Padding(2, 0, 2, 0);
-				AirSuperiority.AutoSize = true;
+				AirSuperiority = new ImageLabel
+				{
+					Anchor = AnchorStyles.Left,
+					ForeColor = parent.MainFontColor,
+					ImageList = ResourceManager.Instance.Equipments,
+					ImageIndex = (int)ResourceManager.EquipmentContent.CarrierBasedFighter,
+					Padding = new Padding(2, 2, 2, 2),
+					Margin = new Padding(2, 0, 2, 0),
+					AutoSize = true
+				};
 
-				SearchingAbility = new ImageLabel();
-				SearchingAbility.Anchor = AnchorStyles.Left;
-				SearchingAbility.ForeColor = parent.MainFontColor;
-				SearchingAbility.ImageList = ResourceManager.Instance.Equipments;
-				SearchingAbility.ImageIndex = (int)ResourceManager.EquipmentContent.CarrierBasedRecon;
-				SearchingAbility.Padding = new Padding(2, 2, 2, 2);
-				SearchingAbility.Margin = new Padding(2, 0, 2, 0);
-				SearchingAbility.AutoSize = true;
+				SearchingAbility = new ImageLabel
+				{
+					Anchor = AnchorStyles.Left,
+					ForeColor = parent.MainFontColor,
+					ImageList = ResourceManager.Instance.Equipments,
+					ImageIndex = (int)ResourceManager.EquipmentContent.CarrierBasedRecon,
+					Padding = new Padding(2, 2, 2, 2),
+					Margin = new Padding(2, 0, 2, 0),
+					AutoSize = true
+				};
 
-				AntiAirPower = new ImageLabel();
-				AntiAirPower.Anchor = AnchorStyles.Left;
-				AntiAirPower.ForeColor = parent.MainFontColor;
-				AntiAirPower.ImageList = ResourceManager.Instance.Equipments;
-				AntiAirPower.ImageIndex = (int)ResourceManager.EquipmentContent.HighAngleGun;
-				AntiAirPower.Padding = new Padding(2, 2, 2, 2);
-				AntiAirPower.Margin = new Padding(2, 0, 2, 0);
-				AntiAirPower.AutoSize = true;
+				AntiAirPower = new ImageLabel
+				{
+					Anchor = AnchorStyles.Left,
+					ForeColor = parent.MainFontColor,
+					ImageList = ResourceManager.Instance.Equipments,
+					ImageIndex = (int)ResourceManager.EquipmentContent.HighAngleGun,
+					Padding = new Padding(2, 2, 2, 2),
+					Margin = new Padding(2, 0, 2, 0),
+					AutoSize = true
+				};
 
 
 				ConfigurationChanged(parent);
@@ -127,28 +137,35 @@ namespace ElectronicObserver.Window
 
 				Name.Text = fleet.Name;
 				{
-					int levelSum = fleet.MembersInstance.Sum(s => s != null ? s.Level : 0);
+					var members = fleet.MembersInstance.Where(s => s != null);
 
-					int fueltotal = fleet.MembersInstance.Sum(s => s == null ? 0 : (int)Math.Floor(s.FuelMax * (s.IsMarried ? 0.85 : 1.00)));
-					int ammototal = fleet.MembersInstance.Sum(s => s == null ? 0 : (int)Math.Floor(s.AmmoMax * (s.IsMarried ? 0.85 : 1.00)));
+					int levelSum = members.Sum(s => s.Level);
 
-					int fuelunit = fleet.MembersInstance.Sum(s => s == null ? 0 : (int)Math.Floor(s.MasterShip.Fuel * 0.2 * (s.IsMarried ? 0.85 : 1.00)));
-					int ammounit = fleet.MembersInstance.Sum(s => s == null ? 0 : (int)Math.Floor(s.MasterShip.Ammo * 0.2 * (s.IsMarried ? 0.85 : 1.00)));
+					int fueltotal = members.Sum(s => Math.Max((int)Math.Floor(s.FuelMax * (s.IsMarried ? 0.85 : 1.00)), 1));
+					int ammototal = members.Sum(s => Math.Max((int)Math.Floor(s.AmmoMax * (s.IsMarried ? 0.85 : 1.00)), 1));
 
-					int speed = fleet.MembersWithoutEscaped.Min(s => s == null ? 10 : s.Speed);
+					int fuelunit = members.Sum(s => Math.Max((int)Math.Floor(s.FuelMax * 0.2 * (s.IsMarried ? 0.85 : 1.00)), 1));
+					int ammounit = members.Sum(s => Math.Max((int)Math.Floor(s.AmmoMax * 0.2 * (s.IsMarried ? 0.85 : 1.00)), 1));
+
+					int speed = members.Select(s => s.Speed).DefaultIfEmpty(20).Min();
 
 					double expeditionBonus = Calculator.GetExpeditionBonus(fleet);
 					int tp = Calculator.GetTPDamage(fleet);
+
+					// 各艦ごとの ドラム缶 or 大発系 を搭載している個数
+					var transport = members.Select(s => s.AllSlotInstanceMaster.Count(eq => eq?.CategoryType == EquipmentTypes.TransportContainer));
+					var landing = members.Select(s => s.AllSlotInstanceMaster.Count(eq => eq?.CategoryType == EquipmentTypes.LandingCraft || eq?.CategoryType == EquipmentTypes.SpecialAmphibiousTank));
+
 
 					ToolTipInfo.SetToolTip(Name, string.Format(
 						"Lv合計: {0} / 平均: {1:0.00}\r\n{2}艦隊\r\nドラム缶搭載: {3}個 ({4}艦)\r\n大発動艇搭載: {5}個 ({6}艦, +{7:p1})\r\n輸送量(TP): S {8} / A {9}\r\n総積載: 燃 {10} / 弾 {11}\r\n(1戦当たり 燃 {12} / 弾 {13})",
 						levelSum,
 						(double)levelSum / Math.Max(fleet.Members.Count(id => id != -1), 1),
 						Constants.GetSpeed(speed),
-						fleet.MembersInstance.Sum(s => s == null ? 0 : s.SlotInstanceMaster.Count(q => q == null ? false : q.CategoryType == 30)),
-						fleet.MembersInstance.Count(s => s == null ? false : s.SlotInstanceMaster.Any(q => q == null ? false : q.CategoryType == 30)),
-						fleet.MembersInstance.Sum(s => s == null ? 0 : s.SlotInstanceMaster.Count(q => q == null ? false : q.CategoryType == 24 || q.CategoryType == 46)),
-						fleet.MembersInstance.Count(s => s == null ? false : s.SlotInstanceMaster.Any(q => q == null ? false : q.CategoryType == 24 || q.CategoryType == 46)),
+						transport.Sum(),
+						transport.Count(i => i > 0),
+						landing.Sum(),
+						landing.Count(i => i > 0),
 						expeditionBonus,
 						tp,
 						(int)(tp * 0.7),
@@ -243,10 +260,18 @@ namespace ElectronicObserver.Window
 				ControlHelper.SetTableRowStyles(parent.TableFleet, ControlHelper.GetDefaultRowStyle());
 			}
 
+			public void Dispose()
+			{
+				Name.Dispose();
+				State.Dispose();
+				AirSuperiority.Dispose();
+				SearchingAbility.Dispose();
+				AntiAirPower.Dispose();
+			}
 		}
 
 
-		private class TableMemberControl
+		private class TableMemberControl : IDisposable
 		{
 			public ImageLabel Name;
 			public ShipStatusLevel Level;
@@ -591,15 +616,18 @@ namespace ElectronicObserver.Window
 				}
 				sb.AppendLine();
 
-				sb.AppendFormat("夜戦: {0}", Constants.GetNightAttackKind(Calculator.GetNightAttackKind(slotmaster, ship.ShipID, -1)));
+				if (ship.CanAttackAtNight)
 				{
-					int night = ship.NightBattlePower;
-					if (night > 0)
+					sb.AppendFormat("夜戦: {0}", Constants.GetNightAttackKind(Calculator.GetNightAttackKind(slotmaster, ship.ShipID, -1)));
 					{
-						sb.AppendFormat(" - 威力: {0}", night);
+						int night = ship.NightBattlePower;
+						if (night > 0)
+						{
+							sb.AppendFormat(" - 威力: {0}", night);
+						}
 					}
+					sb.AppendLine();
 				}
-				sb.AppendLine();
 
 				{
 					int torpedo = ship.TorpedoPower;
@@ -616,7 +644,7 @@ namespace ElectronicObserver.Window
 
 						sb.AppendFormat("対潜: {0}", asw);
 
-						if (Calculator.CanOpeningASW(ship))
+						if (ship.CanOpeningASW)
 							sb.Append(" (先制可能)");
 					}
 					if (torpedo > 0 || asw > 0)
@@ -724,6 +752,17 @@ namespace ElectronicObserver.Window
 				Condition.Font = parent.MainFont;
 				SetConditionDesign((Condition.Tag as int?) ?? 49);
 				Equipments.Font = parent.SubFont;
+			}
+
+			public void Dispose()
+			{
+				Name.Dispose();
+				Level.Dispose();
+				HP.Dispose();
+				Condition.Dispose();
+				ShipResource.Dispose();
+				Equipments.Dispose();
+
 			}
 		}
 
@@ -858,7 +897,7 @@ namespace ElectronicObserver.Window
 			TableFleet.Visible = true;
 			TableFleet.ResumeLayout();
 
-			AnchorageRepairBound = fleet.CanAnchorageRepair ? 2 + fleet.MembersInstance[0].SlotInstance.Count(eq => eq != null && eq.MasterEquipment.CategoryType == 31) : 0;
+			AnchorageRepairBound = fleet.CanAnchorageRepair ? 2 + fleet.MembersInstance[0].SlotInstance.Count(eq => eq != null && eq.MasterEquipment.CategoryType == EquipmentTypes.RepairFacility) : 0;
 
 			TableMember.SuspendLayout();
 			TableMember.RowCount = fleet.Members.Count(id => id > 0);

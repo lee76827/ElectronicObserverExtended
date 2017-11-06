@@ -50,13 +50,8 @@ namespace ElectronicObserver.Window
 		private ImageLabel SelectedTab = null;
 
 		/// <summary>選択中のグループ</summary>
-		private ShipGroupData CurrentGroup
-		{
-			get
-			{
-				return SelectedTab == null ? null : KCDatabase.Instance.ShipGroup[(int)SelectedTab.Tag];
-			}
-		}
+		private ShipGroupData CurrentGroup => SelectedTab == null ? null : KCDatabase.Instance.ShipGroup[(int)SelectedTab.Tag];
+
 
 		private bool IsRowsUpdating;
 		private int _splitterDistance;
@@ -80,20 +75,26 @@ namespace ElectronicObserver.Window
 
 			#region set CellStyle
 
-			CSDefaultLeft = new DataGridViewCellStyle();
-			CSDefaultLeft.Alignment = DataGridViewContentAlignment.MiddleLeft;
-			CSDefaultLeft.BackColor = SystemColors.Control;
-			CSDefaultLeft.Font = Font;
-			CSDefaultLeft.ForeColor = SystemColors.ControlText;
-			CSDefaultLeft.SelectionBackColor = Color.FromArgb(0xFF, 0xFF, 0xCC);
-			CSDefaultLeft.SelectionForeColor = SystemColors.ControlText;
-			CSDefaultLeft.WrapMode = DataGridViewTriState.False;
+			CSDefaultLeft = new DataGridViewCellStyle
+			{
+				Alignment = DataGridViewContentAlignment.MiddleLeft,
+				BackColor = SystemColors.Control,
+				Font = Font,
+				ForeColor = SystemColors.ControlText,
+				SelectionBackColor = Color.FromArgb(0xFF, 0xFF, 0xCC),
+				SelectionForeColor = SystemColors.ControlText,
+				WrapMode = DataGridViewTriState.False
+			};
 
-			CSDefaultCenter = new DataGridViewCellStyle(CSDefaultLeft);
-			CSDefaultCenter.Alignment = DataGridViewContentAlignment.MiddleCenter;
+			CSDefaultCenter = new DataGridViewCellStyle(CSDefaultLeft)
+			{
+				Alignment = DataGridViewContentAlignment.MiddleCenter
+			};
 
-			CSDefaultRight = new DataGridViewCellStyle(CSDefaultLeft);
-			CSDefaultRight.Alignment = DataGridViewContentAlignment.MiddleRight;
+			CSDefaultRight = new DataGridViewCellStyle(CSDefaultLeft)
+			{
+				Alignment = DataGridViewContentAlignment.MiddleRight
+			};
 
 			CSRedRight = new DataGridViewCellStyle(CSDefaultRight);
 			CSRedRight.BackColor =
@@ -273,10 +274,9 @@ namespace ElectronicObserver.Window
 			}
 		}
 
-		protected override string GetPersistString()
-		{
-			return "ShipGroup?SplitterDistance=" + splitContainer1.SplitterDistance;
-		}
+
+		protected override string GetPersistString() => "ShipGroup?SplitterDistance=" + splitContainer1.SplitterDistance;
+
 
 
 		/// <summary>
@@ -285,17 +285,19 @@ namespace ElectronicObserver.Window
 		private ImageLabel CreateTabLabel(int id)
 		{
 
-			ImageLabel label = new ImageLabel();
-			label.Text = KCDatabase.Instance.ShipGroup[id].Name;
-			label.Anchor = AnchorStyles.Left;
-			label.Font = ShipView.Font;
-			label.BackColor = TabInactiveColor;
-			label.BorderStyle = BorderStyle.FixedSingle;
-			label.Padding = new Padding(4, 4, 4, 4);
-			label.Margin = new Padding(0, 0, 0, 0);
-			label.ImageAlign = ContentAlignment.MiddleCenter;
-			label.AutoSize = true;
-			label.Cursor = Cursors.Hand;
+			ImageLabel label = new ImageLabel
+			{
+				Text = KCDatabase.Instance.ShipGroup[id].Name,
+				Anchor = AnchorStyles.Left,
+				Font = ShipView.Font,
+				BackColor = TabInactiveColor,
+				BorderStyle = BorderStyle.FixedSingle,
+				Padding = new Padding(4, 4, 4, 4),
+				Margin = new Padding(0, 0, 0, 0),
+				ImageAlign = ContentAlignment.MiddleCenter,
+				AutoSize = true,
+				Cursor = Cursors.Hand
+			};
 
 			//イベントと固有IDの追加(内部データとの紐付)
 			label.Click += TabLabel_Click;
@@ -523,8 +525,10 @@ namespace ElectronicObserver.Window
 
 					if (!group.ViewColumns.ContainsKey(column.Name))
 					{
-						var newdata = new ShipGroupData.ViewColumnData(column);
-						newdata.Visible = true;     //初期状態でインビジだと不都合なので
+						var newdata = new ShipGroupData.ViewColumnData(column)
+						{
+							Visible = true     //初期状態でインビジだと不都合なので
+						};
 
 						group.ViewColumns.Add(newdata.Name, newdata);
 					}
@@ -645,12 +649,12 @@ namespace ElectronicObserver.Window
 			if (index < 5)
 			{
 				return (index >= ship.SlotSize && ship.Slot[index] == -1) ? "" :
-					ship.SlotInstance[index] == null ? "(なし)" : ship.SlotInstance[index].NameWithLevel;
+					ship.SlotInstance[index]?.NameWithLevel ?? "(なし)";
 			}
 			else
 			{
 				return ship.ExpansionSlot == 0 ? "" :
-					ship.ExpansionSlotInstance == null ? "(なし)" : ship.ExpansionSlotInstance.NameWithLevel;
+					ship.ExpansionSlotInstance?.NameWithLevel ?? "(なし)";
 			}
 
 		}
@@ -1392,128 +1396,10 @@ namespace ElectronicObserver.Window
 
 
 
-		#region ColumnHeader
-		private static readonly string[] ShipCSVHeaderUser = {
-			"固有ID",
-			"艦種",
-			"艦名",
-			"Lv",
-			"Exp",
-			"next",
-			"改装まで",
-			"耐久現在",
-			"耐久最大",
-			"Cond",
-			"燃料",
-			"弾薬",
-			"装備1",
-			"装備2",
-			"装備3",
-			"装備4",
-			"装備5",
-			"補強装備",
-			"入渠",
-			"火力",
-			"火力改修",
-			"火力合計",
-			"雷装",
-			"雷装改修",
-			"雷装合計",
-			"対空",
-			"対空改修",
-			"対空合計",
-			"装甲",
-			"装甲改修",
-			"装甲合計",
-			"対潜",
-			"対潜合計",
-			"回避",
-			"回避合計",
-			"索敵",
-			"索敵合計",
-			"運",
-			"運改修",
-			"運合計",
-			"射程",
-			"速力",
-			"ロック",
-			"出撃先",
-			"航空威力",
-			"砲撃威力",
-			"空撃威力",
-			"対潜威力",
-			"雷撃威力",
-			"夜戦威力",
-			};
+		private static readonly string ShipCSVHeaderUser = "固有ID,艦種,艦名,Lv,Exp,next,改装まで,耐久現在,耐久最大,Cond,燃料,弾薬,装備1,装備2,装備3,装備4,装備5,補強装備,入渠,火力,火力改修,火力合計,雷装,雷装改修,雷装合計,対空,対空改修,対空合計,装甲,装甲改修,装甲合計,対潜,対潜合計,回避,回避合計,索敵,索敵合計,運,運改修,運合計,射程,速力,ロック,出撃先,航空威力,砲撃威力,空撃威力,対潜威力,雷撃威力,夜戦威力";
 
-		private static readonly string[] ShipCSVHeaderData = {
-			"固有ID",
-			"艦種",
-			"艦名",
-			"艦船ID",
-			"Lv",
-			"Exp",
-			"next",
-			"改装まで",
-			"耐久現在",
-			"耐久最大",
-			"Cond",
-			"燃料",
-			"弾薬",
-			"装備1",
-			"装備2",
-			"装備3",
-			"装備4",
-			"装備5",
-			"補強装備",
-			"装備ID1",
-			"装備ID2",
-			"装備ID3",
-			"装備ID4",
-			"装備ID5",
-			"補強装備ID",
-			"艦載機1",
-			"艦載機2",
-			"艦載機3",
-			"艦載機4",
-			"艦載機5",
-			"入渠",
-			"入渠燃料",
-			"入渠鋼材",
-			"火力",
-			"火力改修",
-			"火力合計",
-			"雷装",
-			"雷装改修",
-			"雷装合計",
-			"対空",
-			"対空改修",
-			"対空合計",
-			"装甲",
-			"装甲改修",
-			"装甲合計",
-			"対潜",
-			"対潜合計",
-			"回避",
-			"回避合計",
-			"索敵",
-			"索敵合計",
-			"運",
-			"運改修",
-			"運合計",
-			"射程",
-			"速力",
-			"ロック",
-			"出撃先",
-			"航空威力",
-			"砲撃威力",
-			"空撃威力",
-			"対潜威力",
-			"雷撃威力",
-			"夜戦威力",
-			};
+		private static readonly string ShipCSVHeaderData = "固有ID,艦種,艦名,艦船ID,Lv,Exp,next,改装まで,耐久現在,耐久最大,Cond,燃料,弾薬,装備1,装備2,装備3,装備4,装備5,補強装備,装備ID1,装備ID2,装備ID3,装備ID4,装備ID5,補強装備ID,艦載機1,艦載機2,艦載機3,艦載機4,艦載機5,入渠,入渠燃料,入渠鋼材,火力,火力改修,火力合計,雷装,雷装改修,雷装合計,対空,対空改修,対空合計,装甲,装甲改修,装甲合計,対潜,対潜合計,回避,回避合計,索敵,索敵合計,運,運改修,運合計,射程,速力,ロック,出撃先,航空威力,砲撃威力,空撃威力,対潜威力,雷撃威力,夜戦威力";
 
-		#endregion
 
 		private void MenuMember_CSVOutput_Click(object sender, EventArgs e)
 		{
@@ -1523,7 +1409,6 @@ namespace ElectronicObserver.Window
 			if (SelectedTab == null)
 			{
 				ships = KCDatabase.Instance.Ships.Values;
-
 			}
 			else
 			{
@@ -1551,22 +1436,17 @@ namespace ElectronicObserver.Window
 						using (StreamWriter sw = new StreamWriter(dialog.OutputPath, false, Utility.Configuration.Config.Log.FileEncoding))
 						{
 
-							string[] header = dialog.OutputFormat == DialogShipGroupCSVOutput.OutputFormatConstants.User ? ShipCSVHeaderUser : ShipCSVHeaderData;
+							string header = dialog.OutputFormat == DialogShipGroupCSVOutput.OutputFormatConstants.User ? ShipCSVHeaderUser : ShipCSVHeaderData;
+							sw.WriteLine(header);
 
-							sw.WriteLine(string.Join(",", header));
 
-							string arg = string.Format("{{{0}}}", string.Join("},{", Enumerable.Range(0, header.Length)));
-
-							foreach (ShipData ship in ships)
+							foreach (ShipData ship in ships.Where(s => s != null))
 							{
-
-								if (ship == null) continue;
-
 
 								if (dialog.OutputFormat == DialogShipGroupCSVOutput.OutputFormatConstants.User)
 								{
 
-									sw.WriteLine(arg,
+									sw.WriteLine(string.Join(",",
 										ship.MasterID,
 										ship.MasterShip.ShipTypeName,
 										ship.MasterShip.NameWithClass,
@@ -1616,15 +1496,16 @@ namespace ElectronicObserver.Window
 										ship.AircraftPower,
 										ship.AntiSubmarinePower,
 										ship.TorpedoPower,
-										ship.NightBattlePower);
+										ship.NightBattlePower
+										));
 
 								}
 								else
 								{       //data
 
-									sw.WriteLine(arg,
+									sw.WriteLine(string.Join(",",
 										ship.MasterID,
-										ship.MasterShip.ShipType,
+										(int)ship.MasterShip.ShipType,
 										ship.MasterShip.NameWithClass,
 										ship.ShipID,
 										ship.Level,
@@ -1686,12 +1567,12 @@ namespace ElectronicObserver.Window
 										ship.AircraftPower,
 										ship.AntiSubmarinePower,
 										ship.TorpedoPower,
-										ship.NightBattlePower);
+										ship.NightBattlePower
+										));
 
 								}
 
 							}
-
 
 						}
 
@@ -1700,13 +1581,9 @@ namespace ElectronicObserver.Window
 					}
 					catch (Exception ex)
 					{
-
-						Utility.ErrorReporter.SendErrorReport(ex, "艦船グループ CSVの出力に失敗しました。");
+						Utility.ErrorReporter.SendErrorReport(ex, "艦船グループ CSV の出力に失敗しました。");
 						MessageBox.Show("艦船グループ CSVの出力に失敗しました。\r\n" + ex.Message, "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
-
 					}
-
-
 
 				}
 			}

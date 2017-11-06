@@ -35,16 +35,20 @@ namespace ElectronicObserver.Window
 
 			#region set cellstyle
 
-			CSDefaultLeft = new DataGridViewCellStyle();
-			CSDefaultLeft.Alignment = DataGridViewContentAlignment.MiddleLeft;
+			CSDefaultLeft = new DataGridViewCellStyle
+			{
+				Alignment = DataGridViewContentAlignment.MiddleLeft
+			};
 			CSDefaultLeft.BackColor =
 			CSDefaultLeft.SelectionBackColor = SystemColors.Control;
 			CSDefaultLeft.ForeColor = SystemColors.ControlText;
 			CSDefaultLeft.SelectionForeColor = SystemColors.ControlText;
 			CSDefaultLeft.WrapMode = DataGridViewTriState.False;
 
-			CSDefaultCenter = new DataGridViewCellStyle(CSDefaultLeft);
-			CSDefaultCenter.Alignment = DataGridViewContentAlignment.MiddleCenter;
+			CSDefaultCenter = new DataGridViewCellStyle(CSDefaultLeft)
+			{
+				Alignment = DataGridViewContentAlignment.MiddleCenter
+			};
 
 			CSCategories = new DataGridViewCellStyle[9];
 			for (int i = 0; i < CSCategories.Length; i++)
@@ -275,7 +279,7 @@ namespace ElectronicObserver.Window
 				row.Cells[QuestView_Name.Index].Value = q.QuestID;
 				{
 					var progress = KCDatabase.Instance.QuestProgress[q.QuestID];
-					row.Cells[QuestView_Name.Index].ToolTipText = string.Format("{0} : {1}\r\n{2}\r\n{3}", q.QuestID, q.Name, q.Description, progress != null ? progress.GetClearCondition() : "");
+					row.Cells[QuestView_Name.Index].ToolTipText = $"{q.QuestID} : {q.Name}\r\n{q.Description}\r\n{progress?.GetClearCondition() ?? ""}";
 				}
 				{
 					string value;

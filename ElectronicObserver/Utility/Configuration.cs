@@ -26,10 +26,7 @@ namespace ElectronicObserver.Utility
 
 		private static readonly Configuration instance = new Configuration();
 
-		public static Configuration Instance
-		{
-			get { return instance; }
-		}
+		public static Configuration Instance => instance;
 
 
 		private const string SaveFileName = @"Settings\Configuration.xml";
@@ -40,7 +37,7 @@ namespace ElectronicObserver.Utility
 
 
 		[DataContract(Name = "Configuration")]
-		public class ConfigurationData : DataStorage
+		public sealed class ConfigurationData : DataStorage
 		{
 
 			public class ConfigPartBase
@@ -1420,6 +1417,12 @@ namespace ElectronicObserver.Utility
 			public string VersionUpdateTime { get; set; }
 
 
+
+			public ConfigurationData()
+			{
+				Initialize();
+			}
+
 			public override void Initialize()
 			{
 
@@ -1460,10 +1463,7 @@ namespace ElectronicObserver.Utility
 		}
 		private static ConfigurationData _config;
 
-		public static ConfigurationData Config
-		{
-			get { return _config; }
-		}
+		public static ConfigurationData Config => _config;
 
 
 
@@ -1770,8 +1770,7 @@ namespace ElectronicObserver.Utility
 										var elem = line.Split(",".ToCharArray()).ToList();
 
 										// 旧IDの変換
-										int oldID;
-										if (!int.TryParse(elem[0], out oldID))
+										if (!int.TryParse(elem[0], out int oldID))
 											oldID = -1;
 
 										if (oldID > 2000)

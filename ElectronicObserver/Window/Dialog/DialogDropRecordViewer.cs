@@ -284,19 +284,19 @@ namespace ElectronicObserver.Window.Dialog
 
 			if (elem.ShipID > 0 && !ignoreShip)
 			{
-				sb.AppendFormat("0{0:D4}{1}/{2}", ship != null ? ship.ShipType : 0, ship != null ? ship.NameReading : elem.ShipName, elem.ShipName);
+				sb.AppendFormat("0{0:D4}{1}/{2}", (int?)ship?.ShipType ?? 0, ship?.NameReading ?? elem.ShipName, elem.ShipName);
 			}
 
 			if (elem.ItemID > 0 && !ignoreItem)
 			{
 				if (sb.Length > 0) sb.Append(",");
-				sb.AppendFormat("1{0:D4}{1}", item != null ? item.ItemID : 0, elem.ItemName);
+				sb.AppendFormat("1{0:D4}{1}", item?.ItemID ?? 0, elem.ItemName);
 			}
 
 			if (elem.EquipmentID > 0 && !ignoreEquipment)
 			{
 				if (sb.Length > 0) sb.Append(",");
-				sb.AppendFormat("2{0:D4}{1}", eq != null ? eq.EquipmentID : 0, elem.EquipmentName);
+				sb.AppendFormat("2{0:D4}{1}", eq?.EquipmentID ?? 0, elem.EquipmentName);
 			}
 
 			return sb.ToString();
@@ -418,23 +418,25 @@ namespace ElectronicObserver.Window.Dialog
 			var row = new DataGridViewRow();
 			row.CreateCells(RecordView);
 
-			var args = new SearchArgument();
-			args.ShipName = ShipName.Text;
-			args.ItemName = (string)ItemName.SelectedItem;
-			args.EquipmentName = (string)EquipmentName.SelectedItem;
-			args.DateBegin = DateBegin.Value;
-			args.DateEnd = DateEnd.Value;
-			args.MapAreaID = (int)MapAreaID.SelectedValue;
-			args.MapInfoID = (int)MapInfoID.SelectedValue;
-			args.MapCellID = (int)MapCellID.SelectedValue;
-			args.MapDifficulty = (int)MapDifficulty.SelectedValue;
-			args.IsBossOnly = IsBossOnly.CheckState;
-			args.RankS = RankS.Checked;
-			args.RankA = RankA.Checked;
-			args.RankB = RankB.Checked;
-			args.RankX = RankX.Checked;
-			args.MergeRows = MergeRows.Checked;
-			args.BaseRow = row;
+			var args = new SearchArgument
+			{
+				ShipName = ShipName.Text,
+				ItemName = (string)ItemName.SelectedItem,
+				EquipmentName = (string)EquipmentName.SelectedItem,
+				DateBegin = DateBegin.Value,
+				DateEnd = DateEnd.Value,
+				MapAreaID = (int)MapAreaID.SelectedValue,
+				MapInfoID = (int)MapInfoID.SelectedValue,
+				MapCellID = (int)MapCellID.SelectedValue,
+				MapDifficulty = (int)MapDifficulty.SelectedValue,
+				IsBossOnly = IsBossOnly.CheckState,
+				RankS = RankS.Checked,
+				RankA = RankA.Checked,
+				RankB = RankB.Checked,
+				RankX = RankX.Checked,
+				MergeRows = MergeRows.Checked,
+				BaseRow = row
+			};
 
 			RecordView.Tag = args;
 
@@ -709,8 +711,7 @@ namespace ElectronicObserver.Window.Dialog
 
 						string name = c.Key;
 
-						int serialID = 0;
-						if (int.TryParse(name, System.Globalization.NumberStyles.HexNumber, System.Globalization.CultureInfo.InvariantCulture, out serialID))
+						if (int.TryParse(name, System.Globalization.NumberStyles.HexNumber, System.Globalization.CultureInfo.InvariantCulture, out int serialID))
 							name = GetMapString(serialID);
 
 						// fixme: name != map だった時にソートキーが入れられない
