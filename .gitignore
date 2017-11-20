@@ -166,4 +166,5 @@ packages/
 /ElectronicObserver/Settings
 /ElectronicObserver/Record
 /ElectronicObserver/ErrorReport
+/ElectronicObserver/BattleLog
 output/
