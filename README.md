@@ -48,7 +48,7 @@ To maintain compatibility with plugins developed for tsanie's fork, ElectronicOb
 
 *このリンクの更新は遅れる可能性があります。最新版は[こちら](http://electronicobserver.blog.fc2.com/)で確認してください。*  
 
-[ver. 3.0.4 (2017/11/26)](http://bit.ly/2jncVfl)  
+[ver. 3.0.5 (2017/12/06)](http://bit.ly/2BJWLFb)  
 
 [更新内容・履歴はこちらで確認できます。](https://github.com/andanteyk/ElectronicObserver/wiki/ChangeLog)  
 
