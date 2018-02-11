@@ -41,7 +41,7 @@ namespace ElectronicObserver.Observer
 		public event ProxyStartedEventHandler ProxyStarted = delegate { };
 
 		private Control UIControl;
-		private APIKancolleDB DBSender;
+		
 
 		public event APIReceivedEventHandler RequestReceived = delegate { };
 		public event APIReceivedEventHandler ResponseReceived = delegate { };
@@ -138,8 +138,7 @@ namespace ElectronicObserver.Observer
 
 			ServerAddress = null;
 
-			DBSender = new APIKancolleDB();
-
+			
 			HttpProxy.AfterSessionComplete += HttpProxy_AfterSessionComplete;
 
 			Fiddler.FiddlerApplication.BeforeRequest += FiddlerApplication_BeforeRequest;
@@ -363,12 +362,6 @@ namespace ElectronicObserver.Observer
 				string url = baseurl;
 				string body = session.Response.BodyAsString;
 				UIControl.BeginInvoke((Action)(() => { LoadResponse(url, body); }));
-
-				// kancolle-db.netに送信する
-				if (Utility.Configuration.Config.Connection.SendDataToKancolleDB)
-				{
-					Task.Run((Action)(() => DBSender.ExecuteSession(session)));
-				}
 
 			}
 
