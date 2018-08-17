@@ -1,4 +1,4 @@
-version: 3.1.2.0-extended.{build}
+version: 3.1.2.1-extended.{build}
 
 branches:
     only:
