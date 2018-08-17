@@ -41,7 +41,7 @@ namespace ElectronicObserver.Observer
 		public event ProxyStartedEventHandler ProxyStarted = delegate { };
 
 		private Control UIControl;
-		
+
 
 		public event APIReceivedEventHandler RequestReceived = delegate { };
 		public event APIReceivedEventHandler ResponseReceived = delegate { };
@@ -52,7 +52,7 @@ namespace ElectronicObserver.Observer
 
 			APIList = new APIDictionary
 			{
-				new kcsapi.api_start2(),
+				new kcsapi.api_start2.getData(),
 				new kcsapi.api_get_member.basic(),
 				new kcsapi.api_get_member.slot_item(),
 				new kcsapi.api_get_member.useitem(),
@@ -118,6 +118,7 @@ namespace ElectronicObserver.Observer
 				new kcsapi.api_req_sortie.night_to_day(),
 				new kcsapi.api_req_combined_battle.ec_night_to_day(),
 				new kcsapi.api_req_sortie.goback_port(),
+				new kcsapi.api_req_member.itemuse(),
 
 				new kcsapi.api_req_quest.clearitemget(),
 				new kcsapi.api_req_nyukyo.start(),
@@ -138,7 +139,7 @@ namespace ElectronicObserver.Observer
 
 			ServerAddress = null;
 
-			
+
 			HttpProxy.AfterSessionComplete += HttpProxy_AfterSessionComplete;
 
 			Fiddler.FiddlerApplication.BeforeRequest += FiddlerApplication_BeforeRequest;
@@ -282,12 +283,14 @@ namespace ElectronicObserver.Observer
 						}));
 
 					}
-					else if (baseurl.Contains("/kcs/") &&
+					else if (baseurl.Contains("/kcs") &&
 					  ((c.SaveSWF && session.Response.MimeType == "application/x-shockwave-flash") || c.SaveOtherFile))
 					{
 
 						string saveDataPath = c.SaveDataPath; // スレッド間の競合を避けるため取っておく
-						string tpath = string.Format("{0}\\{1}", saveDataPath, baseurl.Substring(baseurl.IndexOf("/kcs/") + 5).Replace("/", "\\"));
+
+						string tpath = string.Format("{0}\\{1}", saveDataPath, baseurl.Substring(baseurl.IndexOf("/kcs") + 1).Replace("/", "\\"));
+						//Logger.Add(1, $"{baseurl} $ {tpath}");
 						{
 							int index = tpath.IndexOf("?");
 							if (index != -1)

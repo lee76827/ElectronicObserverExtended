@@ -228,6 +228,7 @@
     <Compile Include="Observer\kcsapi\api_req_kaisou\slot_exchange_index.cs" />
     <Compile Include="Observer\kcsapi\api_req_kousyou\remodel_slotlist.cs" />
     <Compile Include="Observer\kcsapi\api_req_map\select_eventmap_rank.cs" />
+    <Compile Include="Observer\kcsapi\api_req_member\itemuse.cs" />
     <Compile Include="Observer\kcsapi\api_req_member\updatecomment.cs" />
     <Compile Include="Observer\kcsapi\api_req_mission\result.cs" />
     <Compile Include="Observer\kcsapi\api_req_quest\stop.cs" />
@@ -236,6 +237,7 @@
     <Compile Include="Observer\kcsapi\api_req_sortie\goback_port.cs" />
     <Compile Include="Observer\kcsapi\api_req_sortie\ld_airbattle.cs" />
     <Compile Include="Observer\kcsapi\api_req_sortie\night_to_day.cs" />
+    <Compile Include="Observer\kcsapi\api_start2\getData.cs" />
     <Compile Include="Resource\Record\ResourceRecord.cs" />
     <Compile Include="Resource\SwfHelper.cs" />
     <Compile Include="Utility\Data\MapCell2WikiPoint.cs" />
