@@ -25,16 +25,16 @@ before_build:
     - copy NUL output-template\Plugins\plugin_dir
 
 build_script:
-    - xcopy /S /E output-template output\
+    - xcopy /E output-template output\
     - git submodule update --init --recursive
     - nuget restore
-    - msbuild ElectronicObserver.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
-    - move output output-net45
-    - xcopy /S /E output-template output\
     - msbuild ElectronicObserver.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:Configuration=Release
-    - move output output-net45-release
+    - move output output-net45-cef-full
+    - xcopy /E output-net45-cef-full output-net45-cef\
+    - rmdir /S /Q output-net45-cef\x86
+    - rmdir /S /Q output-net45-cef\x64
     - git checkout extended-net40
-    - xcopy /S /E output-template output\
+    - xcopy /E output-template output\
     - git submodule sync
     - git submodule update --init --recursive
     - nuget restore
@@ -43,10 +43,10 @@ build_script:
     - ps: if (!((git branch --contains $env:APPVEYOR_REPO_COMMIT) -like '*extended-net40')) { exit -1 }
 
 artifacts:
-    - path: output-net45
-      name: 74eoe-$(APPVEYOR_BUILD_VERSION)
-    - path: output-net45-release
-      name: 74eoe-release-$(APPVEYOR_BUILD_VERSION)
+    - path: output-net45-cef-full
+      name: 74eoe-cef-full-$(APPVEYOR_BUILD_VERSION)
+    - path: output-net45-cef
+      name: 74eoe-cef-$(APPVEYOR_BUILD_VERSION)
     - path: output-net40
       name: 74eoe-net40-$(APPVEYOR_BUILD_VERSION)
 
