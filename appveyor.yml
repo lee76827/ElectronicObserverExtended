@@ -43,6 +43,7 @@ build_script:
     - xcopy /E output-net45-gecko-full output-net45-gecko\
     - rmdir /S /Q output-net45-gecko\Firefox
     - REM ================ net40 ================
+    - msbuild ElectronicObserver.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /t:Clean
     - git checkout extended-net40
     - xcopy /E output-template output-net40\
     - git submodule sync
