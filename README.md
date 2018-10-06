@@ -71,6 +71,7 @@ To maintain compatibility with plugins developed for tsanie's fork, ElectronicOb
 * [SwfExtractor](https://github.com/andanteyk/SwfExtractor) (swf からファイル抽出) - [MIT License](https://github.com/andanteyk/ElectronicObserver/blob/master/Licenses/SwfExtractor.txt)
 	* [LZMA SDK (Software Development Kit)](http://www.7-zip.org/sdk.html) - Public Domain
 * [FiddlerCore](http://www.telerik.com/fiddler/fiddlercore) - [End User License Agreement for FiddlerCore](https://github.com/CAWAS/ElectronicObserverExtended/blob/extended/Licenses/FiddlerCore.txt)
+* [GeckoFX](https://bitbucket.org/geckofx/geckofx-60.0) - [Mozilla Public License](https://github.com/CAWAS/ElectronicObserverExtended/blob/extended/Licenses/MPL.txt)
 
 
 ## 連絡先など
