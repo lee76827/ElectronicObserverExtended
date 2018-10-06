@@ -43,6 +43,8 @@ To maintain compatibility with plugins developed for tsanie's fork, ElectronicOb
 
 [Download Extended / 拡張版のダウンロード](https://ci.appveyor.com/project/CNA-Bld/electronicobserverextended/build/artifacts)
 
+[Flavors of Distribution](https://github.com/CAWAS/ElectronicObserverExtended/wiki/Flavors)
+
 
 ## ダウンロード
 
