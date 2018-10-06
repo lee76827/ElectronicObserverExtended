@@ -31,15 +31,15 @@ build_script:
     - msbuild ElectronicObserver.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:Configuration=Release
     - REM ================ Package CEF flavors ================
     - xcopy /E /Y output-template output-net45-cef-full\
-    - xcopy /E /Y output\ElectronicObserver\ output-net45-cef-full\
-    - xcopy /E /Y output\Browser\ output-net45-cef-full\
+    - xcopy /E /Y output\ElectronicObserver output-net45-cef-full\
+    - xcopy /E /Y output\Browser output-net45-cef-full\
     - xcopy /E output-net45-cef-full output-net45-cef\
     - rmdir /S /Q output-net45-cef\x86
     - rmdir /S /Q output-net45-cef\x64
     - REM ================ Package Gecko flavors ================
     - xcopy /E /Y output-template output-net45-gecko-full\
-    - xcopy /E /Y output\ElectronicObserver\ output-net45-gecko-full\
-    - xcopy /E /Y output\GeckoBrowser\ output-net45-gecko-full\
+    - xcopy /E /Y output\ElectronicObserver output-net45-gecko-full\
+    - xcopy /E /Y output\GeckoBrowser output-net45-gecko-full\
     - xcopy /E output-net45-gecko-full output-net45-gecko\
     - rmdir /S /Q output-net45-gecko\Firefox
     - REM ================ net40 ================
