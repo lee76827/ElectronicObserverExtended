@@ -28,7 +28,7 @@ build_script:
     - REM ================ net45 ================
     - git submodule update --init --recursive
     - nuget restore
-    - msbuild ElectronicObserver.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:Configuration=Release
+    - msbuild ElectronicObserver.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:Configuration=Release /m
     - REM ================ Package CEF flavors ================
     - xcopy /E /Y output-template output-net45-cef-full\
     - xcopy /E /Y output\ElectronicObserver output-net45-cef-full\
