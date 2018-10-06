@@ -16,7 +16,7 @@ Proudly Brought to You by [the Chinese Academy of White (Album) Studies](https:/
 * [GitHub Release](https://github.com/CAWAS/ElectronicObserverExtended/releases)
 * [Appveyor CI](https://ci.appveyor.com/project/CNA-Bld/electronicobserverextended/build/artifacts)
 
-.Net Framework 4.0 兼容版现在与一般版本同时发布，请在 Appveyor 选择适合的版本下载。
+现在同时发布 5 个版本。请阅读 [Flavors](https://github.com/CAWAS/ElectronicObserverExtended/wiki/Flavors) 来选择适合的版本。
 
 ## 官方插件
 
