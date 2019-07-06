@@ -481,6 +481,12 @@ namespace ElectronicObserver.Window
 		}
 
 
+		public void SendMouseEvent(string type, double x, double y)
+		{
+			Browser.AsyncRemoteRun(() => Browser.Proxy.SendMouseEvent(type, x, y));
+		}
+		
+
 		#region 呪文
 
 		[DllImport("user32.dll", SetLastError = true)]

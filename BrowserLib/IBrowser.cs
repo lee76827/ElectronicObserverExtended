@@ -50,5 +50,8 @@ namespace BrowserLib
 		[OperationContract]
 		void SetIconResource(byte[] canvas);
 
+		[OperationContract]
+		void SendMouseEvent(string type, double x, double y);
+		
 	}
 }

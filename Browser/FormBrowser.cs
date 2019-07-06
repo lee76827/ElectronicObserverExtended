@@ -1229,6 +1229,25 @@ namespace Browser
 
 			base.WndProc(ref m);
 		}
+		
+		
+		public void SendMouseEvent(string type, double x, double y)
+		{
+			var mouseEvent = new MouseEvent((int) (Browser.Width * x), (int) (Browser.Height * y), CefEventFlags.None);
+
+			switch (type)
+			{
+				case "down":
+					Browser.GetBrowserHost().SendMouseClickEvent(mouseEvent, MouseButtonType.Left, false, 1);
+					return;
+				case "up":
+					Browser.GetBrowserHost().SendMouseClickEvent(mouseEvent, MouseButtonType.Left, true, 1);
+					break;
+				case "move":
+					Browser.GetBrowserHost().SendMouseMoveEvent(mouseEvent, false);
+					break;
+			}
+		}
 
 
 		#region 呪文
