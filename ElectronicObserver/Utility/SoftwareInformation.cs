@@ -114,7 +114,7 @@ namespace ElectronicObserver.Utility
 						if (result == System.Windows.Forms.DialogResult.Yes)
 						{
                             
-							System.Diagnostics.Process.Start("https://ci.appveyor.com/project/CNA-Bld/electronicobserverextended/build/artifacts");
+							System.Diagnostics.Process.Start("https://cawas.github.io/ElectronicObserverExtended");
 
 						}
 						else if (result == System.Windows.Forms.DialogResult.Cancel)
