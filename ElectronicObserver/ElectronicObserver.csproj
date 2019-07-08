@@ -689,7 +689,6 @@
     <Compile Include="Window\Plugins\ElectronicPlugin.cs" />
     <Compile Include="Window\Plugins\IPluginHost.cs" />
     <Compile Include="Window\Plugins\ObserverPlugin.cs" />
-    <Compile Include="Window\Plugins\PluginManager.cs" />
     <Compile Include="Window\Plugins\PluginSettingControl.cs">
       <SubType>UserControl</SubType>
     </Compile>

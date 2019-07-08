@@ -524,7 +524,7 @@ namespace ElectronicObserver.Window
                         return FormIntegrate.FromPersistString(this, persistString);
                     }
 
-                    return SubForms.FirstOrDefault(f => getPersistString(f) == persistString);
+                    return SubForms.FirstOrDefault(f => GetPersistString(f) == persistString);
             }
 
         }
@@ -1573,12 +1573,12 @@ namespace ElectronicObserver.Window
 
 
         #region Plugins
-        
+
         private async Task LoadPlugins()
         {
             Plugins = new ConcurrentBag<IPluginHost>();
 
-            var path = this.GetType().Assembly.Location;
+            var path = GetType().Assembly.Location;
             path = path.Substring(0, path.LastIndexOf('\\') + 1) + "Plugins";
             if (!Directory.Exists(path))
             {
@@ -1599,7 +1599,8 @@ namespace ElectronicObserver.Window
                     try
                     {
                         var assembly = Assembly.LoadFile(file);
-                        var pluginTypes = assembly.GetExportedTypes().Where(t => t.GetInterface(typeof(IPluginHost).FullName) != null);
+                        var pluginTypes = assembly.GetExportedTypes()
+                            .Where(t => t.GetInterface(typeof(IPluginHost).FullName) != null);
                         foreach (var pluginType in pluginTypes)
                         {
                             var plugin = (IPluginHost) Activator.CreateInstance(pluginType);
@@ -1608,15 +1609,15 @@ namespace ElectronicObserver.Window
                     }
                     catch (ReflectionTypeLoadException refEx)
                     {
-                        Utility.ErrorReporter.SendLoadErrorReport(refEx, "载入插件时出错：" + name);
+                        ErrorReporter.SendLoadErrorReport(refEx, "载入插件时出错：" + name);
                     }
                     catch (TargetInvocationException ex)
                     {
-                        Utility.ErrorReporter.SendErrorReport(ex.InnerException, "Reflection failed loading plugin: " + name);
+                        ErrorReporter.SendErrorReport(ex.InnerException, "Reflection failed loading plugin: " + name);
                     }
                     catch (Exception ex)
                     {
-                        Utility.ErrorReporter.SendErrorReport(ex, "载入插件时出错：" + name);
+                        ErrorReporter.SendErrorReport(ex, "载入插件时出错：" + name);
                     }
                 });
             });
@@ -1634,12 +1635,13 @@ namespace ElectronicObserver.Window
                     if (plugin.PluginType == PluginType.DockContent ||
                         (plugin.PluginType & PluginType.DockContentPlugin) == PluginType.DockContentPlugin)
                     {
-                        List<DockContent> pluginDockContents = new List<DockContent>();
-                        foreach (var type in plugin.GetType().Assembly.GetExportedTypes().Where(t => t.BaseType == typeof(DockContent)))
-                        {
-                            var form = (DockContent) type.GetConstructor(new[] {typeof(FormMain)}).Invoke(new object[] {this});
-                            pluginDockContents.Add(form);
-                        }
+                        var pluginDockContents = plugin.GetType()
+                            .Assembly.GetExportedTypes()
+                            .Where(t => t.BaseType == typeof(DockContent))
+                            .Select(type => (DockContent) type.GetConstructor(new[] {typeof(FormMain)})
+                                .Invoke(new object[] {this}))
+                            .ToList();
+
                         if (pluginDockContents.Count == 1)
                         {
                             var p = pluginDockContents[0];
@@ -1650,7 +1652,7 @@ namespace ElectronicObserver.Window
                             };
                             if (plugin.MenuIcon != null)
                                 item.Image = plugin.MenuIcon;
-                            item.Click += menuitem_Click;
+                            item.Click += DockContentPluginMenuItemClick;
                             dockContentMenus.Add(item);
                         }
                         else if (pluginDockContents.Count > 1)
@@ -1668,11 +1670,13 @@ namespace ElectronicObserver.Window
                                 };
                                 if (p.ShowIcon && p.Icon != null)
                                     subItem.Image = p.Icon.ToBitmap();
-                                subItem.Click += menuitem_Click;
+                                subItem.Click += DockContentPluginMenuItemClick;
                                 item.DropDownItems.Add(subItem);
                             }
+
                             dockContentMenus.Add(item);
                         }
+
                         SubForms.AddRange(pluginDockContents);
                     }
 
@@ -1682,12 +1686,12 @@ namespace ElectronicObserver.Window
                     {
                         if (plugin.RunService(this))
                         {
-                            Utility.Logger.Add(2, string.Format("服务 {0}({1}) 已加载。", plugin.MenuTitle, plugin.Version));
+                            Logger.Add(2, $"服务 {plugin.MenuTitle} ({plugin.Version}) 已加载。");
                         }
                         else
                         {
-                            Utility.Logger.Add(3,
-                                string.Format("服务 {0}({1}, {2}) 加载时返回异常结果。", plugin.MenuTitle, plugin.Version, plugin.GetType().Name));
+                            Logger.Add(3,
+                                $"服务 {plugin.MenuTitle} ({plugin.Version}, {plugin.GetType().Name}) 加载时返回异常结果。");
                         }
                     }
 
@@ -1702,7 +1706,7 @@ namespace ElectronicObserver.Window
                         };
                         if (plugin.MenuIcon != null)
                             item.Image = plugin.MenuIcon;
-                        item.Click += dialogPlugin_Click;
+                        item.Click += DialogPluginMenuItemClick;
                         toolMenus.Add(item);
                     }
 
@@ -1711,19 +1715,18 @@ namespace ElectronicObserver.Window
                         (plugin.PluginType & PluginType.ObserverPlugin) == PluginType.ObserverPlugin)
                     {
                         if (plugin is ObserverPlugin)
-                            Utility.Configuration.Instance.ObserverPlugins.Add((ObserverPlugin) plugin);
+                            Configuration.Instance.ObserverPlugins.Add((ObserverPlugin) plugin);
                         else
-                            Utility.Logger.Add(3, string.Format("观察器 {0}({1}) 类型无效。", plugin.MenuTitle, plugin.Version));
+                            Logger.Add(3, $"观察器 {plugin.MenuTitle} ({plugin.Version}) 类型无效。");
                     }
-
                 }
                 catch (TargetInvocationException ex)
                 {
-                    Utility.ErrorReporter.SendErrorReport(ex.InnerException, "Reflection failed loading plugin: " + plugin);
+                    ErrorReporter.SendErrorReport(ex.InnerException, "Reflection failed loading plugin: " + plugin);
                 }
                 catch (Exception ex)
                 {
-                    Utility.ErrorReporter.SendErrorReport(ex, "载入插件时出错：" + plugin);
+                    ErrorReporter.SendErrorReport(ex, "载入插件时出错：" + plugin);
                 }
             }
 
@@ -1733,33 +1736,31 @@ namespace ElectronicObserver.Window
                 StripMenu_View.DropDownItems.Add(sep);
                 StripMenu_View.DropDownItems.AddRange(dockContentMenus.OrderBy(i => i.Text).ToArray());
             }
+
             StripMenu_Tool.DropDownItems.AddRange(toolMenus.OrderBy(i => i.Text).ToArray());
         }
 
-        void dialogPlugin_Click(object sender, EventArgs e)
+        private void DialogPluginMenuItemClick(object sender, EventArgs e)
         {
-            var plugin = (IPluginHost)((ToolStripMenuItem)sender).Tag;
-            if (plugin != null)
+            var plugin = (IPluginHost) ((ToolStripMenuItem) sender).Tag;
+            if (plugin == null) return;
+            try
             {
-                try
-                {
-                    plugin.GetToolWindow().Show(this);
-                }
-                catch (ObjectDisposedException) { }
-                catch (Exception ex)
-                {
-                    Utility.ErrorReporter.SendErrorReport(ex, string.Format("插件显示出错：{0}({1})", plugin.MenuTitle, plugin.Version));
-                }
+                plugin.GetToolWindow().Show(this);
+            }
+            catch (ObjectDisposedException)
+            {
+            }
+            catch (Exception ex)
+            {
+                ErrorReporter.SendErrorReport(ex, $"插件显示出错：{plugin.MenuTitle} ({plugin.Version})");
             }
         }
 
-        void menuitem_Click(object sender, EventArgs e)
+        private void DockContentPluginMenuItemClick(object sender, EventArgs e)
         {
-            var f = ((ToolStripMenuItem)sender).Tag as DockContent;
-            if (f != null)
-            {
-                f.Show(this.MainDockPanel);
-            }
+            var f = ((ToolStripMenuItem) sender).Tag as DockContent;
+            f?.Show(MainDockPanel);
         }
 
         private void pluginsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1768,11 +1769,13 @@ namespace ElectronicObserver.Window
         }
 
 
-        string getPersistString(DockContent form)
+        private static string GetPersistString(DockContent form)
         {
             var type = form.GetType();
             var getPersistStringMethod = type.GetMethod("GetPersistString");
-            return getPersistStringMethod == null ? type.ToString() : (string)getPersistStringMethod.Invoke(form, new object[] { });
+            return getPersistStringMethod == null
+                ? type.ToString()
+                : (string) getPersistStringMethod.Invoke(form, new object[] { });
         }
 
         #endregion
