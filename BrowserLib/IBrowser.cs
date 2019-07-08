@@ -52,6 +52,9 @@ namespace BrowserLib
 
 		[OperationContract]
 		void SendMouseEvent(string type, double x, double y);
-		
+
+		[OperationContract]
+		byte[] TakeScreenShotAsPngBytes();
+
 	}
 }

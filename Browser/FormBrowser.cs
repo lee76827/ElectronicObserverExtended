@@ -1249,6 +1249,15 @@ namespace Browser
 			}
 		}
 
+		public byte[] TakeScreenShotAsPngBytes()
+		{
+			var screenShot = Task.Run(TakeScreenShot);
+			using (var stream = new MemoryStream())
+			{
+				screenShot.Result.Save(stream, ImageFormat.Png);
+				return stream.ToArray();
+			}
+		}
 
 		#region 呪文
 

@@ -485,6 +485,11 @@ namespace ElectronicObserver.Window
 		{
 			Browser.AsyncRemoteRun(() => Browser.Proxy.SendMouseEvent(type, x, y));
 		}
+
+		public byte[] TakeScreenShotAsPngBytes()
+		{
+			return Browser.RemoteRun(() => Browser.Proxy.TakeScreenShotAsPngBytes(), new byte[] { });
+		}
 		
 
 		#region 呪文
